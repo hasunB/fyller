@@ -2,7 +2,7 @@ import React from 'react';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 import { Mail, Lock, ArrowRight } from 'lucide-react';
-import InputField from "@/Components/client/UI/Form-InputField";
+import InputField from "@/Components/Client/UI/Form-InputField";
 
 export default function Login() {
 

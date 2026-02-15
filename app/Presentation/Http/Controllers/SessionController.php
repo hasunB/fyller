@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Presentation\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -9,11 +9,13 @@ use Inertia\Inertia;
 
 class SessionController extends Controller
 {
-    public function create(){
+    public function create()
+    {
         return Inertia::render('Auth/Login');
     }
 
-    public function store(){
+    public function store()
+    {
         // validate
         $credentials = request()->validate([
             'email' => 'required|string|email',
@@ -34,7 +36,5 @@ class SessionController extends Controller
         return redirect('/dashboard');
     }
 
-    public function destroy() {
-
-    }
+    public function destroy() {}
 }

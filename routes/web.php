@@ -1,9 +1,10 @@
 <?php
 
-use App\Http\Controllers\SessionController;
+use App\Presentation\Http\Controllers\SessionController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-use App\Http\Controllers\RegisteredUserController;
+use App\Presentation\Http\Controllers\RegisteredUserController;
+use App\Presentation\Http\Controllers\InventoryController;
 
 Route::get('/', function () {
     return Inertia::render('Home', []);
@@ -20,5 +21,7 @@ Route::get('/register', [RegisteredUserController::class, 'create']);
 Route::post('/register', [RegisteredUserController::class, 'store']);
 
 Route::get('/dashboard', function () {
-    return Inertia::render('admin/Dashboard', []);
+    return Inertia::render('Admin/Dashboard', []);
 })->middleware('auth');
+
+Route::get('/inventory', [InventoryController::class, 'create'])->middleware('auth');
