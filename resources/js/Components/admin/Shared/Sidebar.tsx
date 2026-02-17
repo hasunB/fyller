@@ -20,8 +20,8 @@ const Sidebar = () => {
         { name: 'Inventory', href: '/inventory', icon: ShoppingBag },
         { name: 'Orders', href: '/orders', icon: BaggageClaim },
         { name: 'Expenses', href: '/expenses', icon: Wallet },
-        { name: 'Users', href: '/users', icon: Users },
-        { name: 'Analytics', href: '/analytics', icon: BarChart3 },
+        { name: 'Employees', href: '/employees', icon: Users },
+        { name: 'AI Analytics', href: '/analytics', icon: BarChart3 },
         { name: 'Settings', href: '/settings', icon: Settings },
     ];
 

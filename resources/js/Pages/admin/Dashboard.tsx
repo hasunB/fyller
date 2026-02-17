@@ -148,7 +148,7 @@ const AIInsightCard = ({ title, desc, impact, type }) => (
 
 export default function Dashboard() {
     return (
-        <Layout title="Dashboard - Fyller">
+        <Layout title="Dashboard">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
 
                 {/* Section 1: Header */}

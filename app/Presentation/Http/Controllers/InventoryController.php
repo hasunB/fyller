@@ -9,8 +9,13 @@ use Inertia\Inertia;
 
 class InventoryController extends Controller
 {
-    public function create()
+    public function index()
     {
         return Inertia::render('Admin/Inventory/index');
+    }
+
+    public function create()
+    {
+        return Inertia::render('Admin/Inventory/create');
     }
 }
