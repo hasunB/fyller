@@ -19,6 +19,9 @@ import {
     RefreshCcw,
     AlertCircle
 } from 'lucide-react';
+import { ChartAreaInteractive } from '@/Components/Admin/UI/Admin-Charts';
+import StatCard from '@/Components/Admin/UI/Admin-StatCard';
+// import InsightCard from '@/Components/Admin/UI/Admin-InsightCard';
 
 // --- Components ---
 
@@ -221,31 +224,6 @@ const PredictiveForecaster = () => {
     );
 };
 
-const InsightCard = ({ title, value, change, trend, icon: Icon, color }: any) => (
-    <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="bg-gray-900/50 backdrop-blur-md border border-gray-800 rounded-xl p-6 relative overflow-hidden"
-    >
-        <div className={`absolute top-0 right-0 p-4 opacity-10 ${color}`}>
-            <Icon className="w-16 h-16" />
-        </div>
-        <div className="relative z-10">
-            <div className="flex items-center gap-2 mb-2">
-                <div className={`p-2 rounded-lg bg-gray-800 ${color} bg-opacity-10 text-white`}>
-                    <Icon className="w-5 h-5" />
-                </div>
-                <span className="text-gray-400 font-medium text-sm">{title}</span>
-            </div>
-            <h3 className="text-2xl font-bold text-white mb-1">{value}</h3>
-            <span className={`flex items-center text-xs font-bold ${trend === 'up' ? 'text-emerald-400' : 'text-red-400'}`}>
-                {trend === 'up' ? <ArrowUpRight className="w-3 h-3 mr-1" /> : <ArrowDownRight className="w-3 h-3 mr-1" />}
-                {change}
-            </span>
-        </div>
-    </motion.div>
-);
-
 const SentimentBar = ({ label, value, color, icon: Icon }: any) => (
     <div className="flex items-center gap-4">
         <div className="w-8 flex justify-center">
@@ -294,56 +272,7 @@ const ChurnRiskList = () => (
     </div>
 );
 
-// --- Charts (Simplified SVGs) ---
-
-const RevenueForecastChart = () => (
-    <div className="h-64 w-full relative pt-6">
-        {/* Grid */}
-        <div className="absolute inset-0 flex flex-col justify-between text-xs text-gray-600 z-0">
-            {[100, 75, 50, 25, 0].map((v, i) => (
-                <div key={i} className="border-b border-gray-800 w-full h-full relative"><span className="absolute -top-3 left-0">${v}k</span></div>
-            ))}
-        </div>
-        {/* Chart */}
-        <svg className="absolute inset-0 w-full h-full overflow-visible z-10 pl-8 pt-6">
-            <defs>
-                <linearGradient id="gradForecast" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#10b981" stopOpacity="0.4" />
-                    <stop offset="100%" stopColor="#10b981" stopOpacity="0" />
-                </linearGradient>
-            </defs>
-            {/* Historical Line */}
-            <motion.path
-                d="M0,180 C50,170 100,100 150,120 C200,140 250,90 300,100 C350,110 400,60 450,80"
-                fill="none" stroke="#6366f1" strokeWidth="2.5"
-                initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 1.5 }}
-            />
-            {/* Forecast Line (Dashed) */}
-            <motion.path
-                d="M450,80 C500,70 550,40 600,30 C650,50 700,20 800,10"
-                fill="none" stroke="#10b981" strokeWidth="2.5" strokeDasharray="5 5"
-                initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ delay: 1, duration: 1.5 }}
-            />
-            {/* Forecast Area */}
-            <motion.path
-                d="M450,80 C500,70 550,40 600,30 C650,50 700,20 800,10 V220 H450 Z"
-                fill="url(#gradForecast)" opacity="0.5"
-                initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.5, duration: 0.5 }}
-            />
-            {/* Points */}
-            <circle cx="450" cy="80" r="4" fill="#6366f1" stroke="#fff" strokeWidth="2" />
-            <circle cx="800" cy="10" r="4" fill="#10b981" stroke="#fff" strokeWidth="2" />
-        </svg>
-        {/* Legend */}
-        <div className="absolute top-0 right-0 flex gap-4 text-xs">
-            <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-indigo-500"></div>Actual</div>
-            <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-emerald-500"></div>AI Forecast</div>
-        </div>
-    </div>
-);
-
 // --- Main Page ---
-
 export default function AnalyticsIndex() {
     return (
         <Layout title="AI Analytics">
@@ -369,10 +298,10 @@ export default function AnalyticsIndex() {
 
                 {/* Top KPI Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <InsightCard title="Predicted Revenue" value="$145.2k" change="+12.5%" trend="up" icon={TrendingUp} color="text-indigo-500" />
-                    <InsightCard title="Churn Probability" value="4.2%" change="-0.8%" trend="up" icon={Users} color="text-red-500" />
-                    <InsightCard title="Conversion Rate" value="3.8%" change="+0.5%" trend="up" icon={Target} color="text-emerald-500" />
-                    <InsightCard title="Anomalies Detected" value="2" change="Critical" trend="down" icon={AlertTriangle} color="text-amber-500" />
+                    <StatCard title="Predicted Revenue" value="$145.2k" change="+12.5%" trend="up" icon={TrendingUp} color="text-indigo-500" />
+                    <StatCard title="Churn Probability" value="4.2%" change="-0.8%" trend="up" icon={Users} color="text-red-500" />
+                    <StatCard title="Conversion Rate" value="3.8%" change="+0.5%" trend="up" icon={Target} color="text-emerald-500" />
+                    <StatCard title="Anomalies Detected" value="2" change="Critical" trend="down" icon={AlertTriangle} color="text-amber-500" />
                 </div>
 
                 {/* Main Content Grid */}
@@ -384,7 +313,7 @@ export default function AnalyticsIndex() {
                             <h3 className="text-lg font-bold text-white">Revenue Forecast (AI Model v4)</h3>
                             <button className="text-xs text-indigo-400 hover:text-indigo-300">View Details</button>
                         </div>
-                        <RevenueForecastChart />
+                        {/* <RevenueForecastChart /> */}
                     </div>
 
                     {/* 2. Customer Sentiment Analysis */}
