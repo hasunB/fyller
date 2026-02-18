@@ -19,6 +19,11 @@ import {
     ArrowUpRight,
     Truck
 } from 'lucide-react';
+import AdminPanelHeader from '@/Components/Admin/UI/AdminPanelHeader';
+import MiniStat from '@/Components/Admin/UI/AdminMiniStat';
+import AiPriorityTag from '@/Components/Admin/UI/AiPriorityTag';
+import OrderChannelIcon from '@/Components/Admin/UI/OrderChannelIcon';
+import OrderStatusBadge from '@/Components/Admin/UI/OrderStatusBadge';
 
 // --- Types ---
 interface Order {
@@ -96,80 +101,6 @@ const orders: Order[] = [
     },
 ];
 
-// --- Components ---
-
-const StatusBadge = ({ status, type }: { status: string, type: 'payment' | 'fulfillment' }) => {
-    const styles: any = {
-        // Payment Styles
-        'Paid': 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
-        'Pending': 'bg-amber-500/10 text-amber-400 border-amber-500/20',
-        'Failed': 'bg-red-500/10 text-red-400 border-red-500/20',
-
-        // Fulfillment Styles
-        'Unfulfilled': 'bg-gray-500/10 text-gray-400 border-gray-500/20',
-        'Processing': 'bg-blue-500/10 text-blue-400 border-blue-500/20',
-        'Shipped': 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20',
-        'Delivered': 'bg-green-500/10 text-green-400 border-green-500/20',
-    };
-
-    const Icons: any = {
-        'Paid': CheckCircle2,
-        'Pending': Clock,
-        'Failed': XCircle,
-        'Unfulfilled': AlertTriangle,
-        'Processing': Clock,
-        'Shipped': Truck,
-        'Delivered': CheckCircle2
-    };
-
-    const Icon = Icons[status] || Clock;
-
-    return (
-        <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium border ${styles[status]} flex items-center gap-1.5 w-fit`}>
-            <Icon className="w-3 h-3" />
-            {status}
-        </span>
-    );
-};
-
-const ChannelIcon = ({ channel }: { channel: Order['channel'] }) => {
-    if (channel === 'Web') return <Globe className="w-4 h-4 text-indigo-400" />;
-    if (channel === 'Mobile') return <Smartphone className="w-4 h-4 text-purple-400" />;
-    return <Store className="w-4 h-4 text-orange-400" />;
-};
-
-const AIPriorityTag = ({ priority }: { priority: Order['aiPriority'] }) => {
-    if (priority === 'High') {
-        return (
-            <div className="flex items-center gap-1 text-xs font-bold text-indigo-400 bg-indigo-400/10 px-2 py-1 rounded border border-indigo-400/20">
-                <ArrowUpRight className="w-3 h-3" /> VIP
-            </div>
-        );
-    }
-    if (priority === 'Fraud Risk') {
-        return (
-            <div className="flex items-center gap-1 text-xs font-bold text-red-400 bg-red-400/10 px-2 py-1 rounded border border-red-400/20 animate-pulse">
-                <AlertTriangle className="w-3 h-3" /> High Risk
-            </div>
-        );
-    }
-    return <span className="text-gray-600 text-xs">-</span>;
-};
-
-const MiniStat = ({ title, value, icon: Icon, color }: any) => (
-    <div className="bg-gray-900/50 backdrop-blur-md border border-gray-800 rounded-xl p-4 flex items-center gap-4">
-        <div className={`p-3 rounded-lg bg-gray-800 ${color} bg-opacity-10 text-white`}>
-            <Icon className="w-5 h-5" />
-        </div>
-        <div>
-            <p className="text-gray-400 text-xs font-medium uppercase tracking-wider">{title}</p>
-            <h4 className="text-xl font-bold text-white">{value}</h4>
-        </div>
-    </div>
-);
-
-// --- Main Page ---
-
 export default function OrdersIndex() {
     const [searchTerm, setSearchTerm] = useState('');
 
@@ -178,22 +109,16 @@ export default function OrdersIndex() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
 
                 {/* Header Section */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div>
-                        <h1 className="text-2xl font-bold text-white">Orders</h1>
-                        <p className="text-gray-400 text-sm mt-1">
-                            Manage and fulfill customer orders. AI Fraud Detection is <span className="text-green-400 font-semibold">Active</span>.
-                        </p>
-                    </div>
-                    <div className="flex gap-3">
-                        <button className="flex items-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg border border-gray-700 transition-colors text-sm">
-                            <Download className="w-4 h-4" /> Export CSV
-                        </button>
-                        <a href="/orders/create" className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg shadow-lg shadow-indigo-500/20 transition-all text-sm font-medium">
-                            <Plus className="w-4 h-4" /> Add Order
-                        </a>
-                    </div>
-                </div>
+                <AdminPanelHeader 
+                    panelName="orders"
+                    title="Orders Management"
+                    description="Manage and fulfill customer orders. AI Fraud Detection is Active"
+                    descriptionSpanText="Active"
+                    descriptionSpanStyle="font-bold text-green-400" 
+                    showExportButton={true}
+                    AddButtonText="Add Order"
+                    ExportButtonText="Export CSV"
+                />
 
                 {/* Quick Stats Row */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -248,7 +173,7 @@ export default function OrdersIndex() {
                                     <tr key={order.id} className="hover:bg-gray-800/50 transition-colors group">
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-2">
-                                                <ChannelIcon channel={order.channel} />
+                                                <OrderChannelIcon channel={order.channel} />
                                                 <span className="text-sm font-semibold text-white group-hover:text-indigo-400 transition-colors">
                                                     {order.id}
                                                 </span>
@@ -269,13 +194,13 @@ export default function OrdersIndex() {
                                             </div>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <StatusBadge status={order.paymentStatus} type="payment" />
+                                            <OrderStatusBadge status={order.paymentStatus} type="payment" />
                                         </td>
                                         <td className="px-6 py-4">
-                                            <StatusBadge status={order.fulfillmentStatus} type="fulfillment" />
+                                            <OrderStatusBadge status={order.fulfillmentStatus} type="fulfillment" />
                                         </td>
                                         <td className="px-6 py-4">
-                                            <AIPriorityTag priority={order.aiPriority} />
+                                            <AiPriorityTag priority={order.aiPriority} />
                                         </td>
                                         <td className="px-6 py-4 text-sm font-mono text-white text-right">
                                             {order.total}

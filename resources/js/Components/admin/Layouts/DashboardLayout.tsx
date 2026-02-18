@@ -1,7 +1,7 @@
 import React, { ReactNode } from 'react';
 import { Head } from '@inertiajs/react';
 import Sidebar from '@/Components/Admin/Shared/Sidebar';
-import ChatBot from '@/Components/Admin/ChatBot';
+import ChatBot from '@/Components/Admin/Shared/ChatBot';
 
 interface DashboardLayoutProps {
     children: ReactNode;

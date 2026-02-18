@@ -13,139 +13,51 @@ import {
     BrainCircuit,
     ShoppingBag
 } from 'lucide-react';
+import { ChartAreaInteractive } from '@/Components/Admin/UI/Admin-Charts';
+import StatCard from '@/Components/Admin/UI/Admin-StatCard';
+import InsightCard from '@/Components/Admin/UI/Admin-InsightCard';
 
-// --- Components for the Dashboard ---
-
-// 1. KPI Card Component
-//@ts-ignore
-const StatCard = ({ title, value, change, trend, icon: Icon, color }) => (
-    <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="bg-gray-900/50 backdrop-blur-md border border-gray-800 rounded-xl p-6 relative overflow-hidden group"
-    >
-        <div className={`absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity ${color}`}>
-            <Icon className="w-16 h-16" />
-        </div>
-        <div className="relative z-10">
-            <div className="flex items-center gap-2 mb-4">
-                <div className={`p-2 rounded-lg bg-gray-800 ${color} bg-opacity-10 text-white`}>
-                    <Icon className="w-5 h-5" />
-                </div>
-                <span className="text-gray-400 font-medium text-sm">{title}</span>
-            </div>
-            <div className="flex items-end gap-3">
-                <h3 className="text-3xl font-bold text-white">{value}</h3>
-                <span className={`flex items-center text-sm font-medium mb-1 ${trend === 'up' ? 'text-green-400' : 'text-red-400'}`}>
-                    {trend === 'up' ? <ArrowUpRight className="w-4 h-4 mr-1" /> : <ArrowDownRight className="w-4 h-4 mr-1" />}
-                    {change}
-                </span>
-            </div>
-        </div>
-    </motion.div>
-);
-
-// 2. Custom Animated Line Chart (Forecast)
-const ForecastChart = () => {
-    return (
-        <div className="h-64 w-full relative mt-4">
-            {/* Grid Lines */}
-            <div className="absolute inset-0 flex flex-col justify-between text-xs text-gray-600">
-                {[100, 75, 50, 25, 0].map((val, i) => (
-                    <div key={i} className="border-b border-gray-800 w-full h-full last:border-0 relative">
-                        <span className="absolute -top-3 left-0">{val}k</span>
-                    </div>
-                ))}
-            </div>
-
-            {/* Chart Area */}
-            <svg className="absolute inset-0 w-full h-full overflow-visible pl-8 pt-2">
-                <defs>
-                    <linearGradient id="gradientArea" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#6366f1" stopOpacity="0.3" />
-                        <stop offset="100%" stopColor="#6366f1" stopOpacity="0" />
-                    </linearGradient>
-                </defs>
-
-                {/* Historical Data (Solid Line) */}
-                <motion.path
-                    d="M0,150 C50,140 100,100 150,110 C200,120 250,80 300,90 C350,100 400,60 450,70"
-                    fill="none"
-                    stroke="#94a3b8"
-                    strokeWidth="2"
-                    strokeDasharray="5 5"
-                />
-
-                {/* AI Prediction (Glowing Gradient Line) */}
-                <motion.path
-                    d="M450,70 C500,60 550,20 600,30 C650,40 700,10 800,5"
-                    fill="none"
-                    stroke="#818cf8"
-                    strokeWidth="3"
-                    initial={{ pathLength: 0 }}
-                    animate={{ pathLength: 1 }}
-                    transition={{ duration: 2, ease: "easeInOut" }}
-                    filter="url(#glow)"
-                />
-
-                {/* Area Fill under prediction */}
-                <motion.path
-                    d="M450,70 C500,60 550,20 600,30 C650,40 700,10 800,5 V200 H450 Z"
-                    fill="url(#gradientArea)"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.5, duration: 1 }}
-                />
-
-                {/* Floating Tooltip Point */}
-                <motion.circle
-                    cx="600" cy="30" r="4" fill="#fff"
-                    initial={{ scale: 0 }}
-                    animate={{ scale: [1, 1.5, 1] }}
-                    transition={{ repeat: Infinity, duration: 2 }}
-                />
-            </svg>
-
-            {/* Legend */}
-            <div className="absolute top-0 right-0 flex gap-4 text-xs">
-                <div className="flex items-center gap-2 text-gray-400">
-                    <div className="w-3 h-0.5 bg-gray-400 border-dashed border-t border-gray-400"></div> Historical
-                </div>
-                <div className="flex items-center gap-2 text-indigo-400 font-bold">
-                    <div className="w-3 h-3 rounded-full bg-indigo-500"></div> AI Forecast
-                </div>
-            </div>
-        </div>
-    );
-};
-
-// 3. Actionable Insights Component
-//@ts-ignore
-const AIInsightCard = ({ title, desc, impact, type }) => (
-    <div className="flex items-start gap-4 p-4 rounded-lg bg-gray-800/50 hover:bg-gray-800 transition-colors border border-gray-800 mb-3">
-        <div className={`mt-1 p-2 rounded-full ${type === 'discount' ? 'bg-amber-500/10 text-amber-500' :
-            type === 'restock' ? 'bg-red-500/10 text-red-500' :
-                'bg-indigo-500/10 text-indigo-500'
-            }`}>
-            {type === 'discount' ? <Zap className="w-4 h-4" /> :
-                type === 'restock' ? <AlertTriangle className="w-4 h-4" /> :
-                    <Package className="w-4 h-4" />}
-        </div>
-        <div className="flex-1">
-            <div className="flex justify-between items-start">
-                <h4 className="text-sm font-semibold text-gray-200">{title}</h4>
-                <span className="text-xs font-mono text-green-400 bg-green-400/10 px-2 py-0.5 rounded">{impact}</span>
-            </div>
-            <p className="text-xs text-gray-400 mt-1 leading-relaxed">{desc}</p>
-            <button className="mt-3 text-xs font-medium text-indigo-400 hover:text-indigo-300 flex items-center gap-1 transition-colors">
-                Apply Recommendation <ArrowUpRight className="w-3 h-3" />
-            </button>
-        </div>
-    </div>
-);
+const ChartData = {
+    title: 'Predictive Sales Forecast',
+    confidence: 0.92,
+    data: [  
+        // --- Past Data (Actual Sales) ---
+        { date: "2024-06-01", sales: 150, predicted: null },
+        { date: "2024-06-02", sales: 180, predicted: null },
+        { date: "2024-06-03", sales: 120, predicted: null },
+        { date: "2024-06-04", sales: 260, predicted: null },
+        { date: "2024-06-05", sales: 290, predicted: null },
+        { date: "2024-06-06", sales: 340, predicted: null },
+        { date: "2024-06-07", sales: 180, predicted: null },
+        { date: "2024-06-08", sales: 320, predicted: null },
+        { date: "2024-06-09", sales: 110, predicted: null },
+        { date: "2024-06-10", sales: 190, predicted: null },
+        { date: "2024-06-11", sales: 350, predicted: null },
+        { date: "2024-06-12", sales: 210, predicted: null },
+        { date: "2024-06-13", sales: 380, predicted: null },
+        { date: "2024-06-14", sales: 220, predicted: null },
+        // --- The "Present" Day (Connects both lines) ---
+        { date: "2024-06-15", sales: 170, predicted: 170 },
+        // --- Future Data (AI Prediction) ---
+        { date: "2024-06-16", sales: null, predicted: 190 },
+        { date: "2024-06-17", sales: null, predicted: 360 },
+        { date: "2024-06-18", sales: null, predicted: 410 },
+        { date: "2024-06-19", sales: null, predicted: 180 },
+        { date: "2024-06-20", sales: null, predicted: 150 },
+        { date: "2024-06-21", sales: null, predicted: 200 },
+        { date: "2024-06-22", sales: null, predicted: 170 },
+        { date: "2024-06-23", sales: null, predicted: 230 },
+        { date: "2024-06-24", sales: null, predicted: 290 },
+        { date: "2024-06-25", sales: null, predicted: 250 },
+        { date: "2024-06-26", sales: null, predicted: 130 },
+        { date: "2024-06-27", sales: null, predicted: 420 },
+        { date: "2024-06-28", sales: null, predicted: 180 },
+        { date: "2024-06-29", sales: null, predicted: 240 },
+        { date: "2024-06-30", sales: null, predicted: 380 },
+    ],
+}
 
 // --- Main Dashboard Page ---
-
 export default function Dashboard() {
     return (
         <Layout title="Dashboard">
@@ -170,88 +82,44 @@ export default function Dashboard() {
 
                 {/* Section 2: KPI Grid (CFO Dashboard) */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <StatCard
-                        title="Total Revenue"
-                        value="$1.2M"
-                        change="+12.5%"
-                        trend="up"
-                        icon={TrendingUp}
-                        color="text-indigo-500"
-                    />
-                    <StatCard
-                        title="Active Inventory"
-                        value="8,432"
-                        change="-2.1%"
-                        trend="down"
-                        icon={Package}
-                        color="text-blue-500"
-                    />
-                    <StatCard
-                        title="Slow Moving Stock"
-                        value="$42k"
-                        change="-5.4%"
-                        trend="up" // Good that it's going down (logic handled by color usually, simplified here)
-                        icon={AlertTriangle}
-                        color="text-amber-500"
-                    />
-                    <StatCard
-                        title="Projected Q3"
-                        value="$2.4M"
-                        change="+98% Acc"
-                        trend="up"
-                        icon={BrainCircuit}
-                        color="text-purple-500"
-                    />
+                    <StatCard title="Total Revenue" value="$1.2M" change="+12.5%" trend="up" icon={TrendingUp} color="text-indigo-500" />
+                    <StatCard title="Active Inventory" value="8,432" change="-2.1%" trend="down" icon={Package} color="text-blue-500" />
+                    <StatCard title="Slow Moving Stock" value="$42k" change="-5.4%" trend="up" icon={AlertTriangle} color="text-amber-500" />
+                    <StatCard title="Projected Q3" value="$2.4M" change="+98% Acc" trend="up" icon={BrainCircuit} color="text-purple-500" />
                 </div>
 
                 {/* Section 3: Main Layout (Bento Grid) */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-auto lg:h-[500px]">
 
                     {/* Main Chart: Predictive Sales Forecasting */}
-                    <div className="lg:col-span-2 bg-gray-900/50 backdrop-blur-md border border-gray-800 rounded-xl p-6 flex flex-col">
-                        <div className="flex justify-between items-center mb-6">
-                            <div>
-                                <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                                    <BrainCircuit className="w-5 h-5 text-indigo-500" />
-                                    Predictive Sales Forecast
-                                </h3>
-                                <p className="text-sm text-gray-500">AI model confidence: <span className="text-green-400 font-mono">98.4%</span></p>
-                            </div>
-                            <select className="bg-gray-950 border border-gray-800 text-gray-300 text-sm rounded-lg px-3 py-1 outline-none focus:border-indigo-500">
-                                <option>Next 30 Days</option>
-                                <option>Next Quarter</option>
-                                <option>This Year</option>
-                            </select>
-                        </div>
-                        <div className="flex-1 w-full">
-                            <ForecastChart />
-                        </div>
+                    <div className="lg:col-span-2 bg-gray-900/50 backdrop-blur-md border border-gray-800 rounded-xl px-6 flex flex-col">
+                        <ChartAreaInteractive data={ChartData} />
                     </div>
 
                     {/* Side Panel: Actionable Insights */}
-                    <div className="bg-gray-900/50 backdrop-blur-md border border-gray-800 rounded-xl p-6 overflow-y-auto custom-scrollbar">
+                    <div className="bg-gray-900/50 backdrop-blur-md border border-gray-800 rounded-xl p-6 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-800 scrollbar-track-transparent hover:scrollbar-thumb-indigo-500/50 transition-colors">
                         <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
                             <Zap className="w-5 h-5 text-yellow-500" />
                             AI Opportunities
                         </h3>
                         <div className="space-y-4">
-                            <AIInsightCard
+                            <InsightCard
                                 title="Bundle Slow Movers"
                                 desc="High inventory of 'Winter Coats'. Bundle with 'Scarves' (High Demand) to clear stock."
                                 impact="+$4.2k Rev"
                                 type="discount"
                             />
-                            <AIInsightCard
+                            <InsightCard
                                 title="Restock Alert: Denim"
                                 desc="Supplier lead time increased to 14 days. Order now to avoid stockout in 10 days."
                                 impact="Prevent Loss"
                                 type="restock"
                             />
-                            <AIInsightCard
+                            <InsightCard
                                 title="Price Optimization"
                                 desc="Competitor A increased prices by 10%. Recommend 5% increase on 'Leather Boots'."
                                 impact="+3% Margin"
-                                type="price"
+                                type="inventory"
                             />
                         </div>
                     </div>
