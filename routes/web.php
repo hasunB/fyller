@@ -30,25 +30,24 @@ Route::get('/dashboard', function () {
 })->middleware('auth');
 
 // inventory
-Route::get('/inventory', [InventoryController::class, 'index'])->middleware('auth');
-Route::get('/inventory/create', [InventoryController::class, 'create'])->middleware('auth');
+Route::get('/inventory', [InventoryController::class, 'index'])->middleware('auth')->name('inventory.index');
+Route::get('/inventory/create', [InventoryController::class, 'create'])->middleware('auth')->name('inventory.create');
+Route::post('/inventory/store', [InventoryController::class, 'store'])->middleware('auth')->name('inventory.store');
 
 // orders
-Route::get('/orders', [OrderController::class, 'index'])->middleware('auth');
-Route::get('/orders/create', [OrderController::class, 'create'])->middleware('auth');
+Route::get('/orders', [OrderController::class, 'index'])->middleware('auth')->name('orders.index');
+Route::get('/orders/create', [OrderController::class, 'create'])->middleware('auth')->name('orders.create');
 
 // expenses
-Route::get('/expenses', [ExpenseController::class, 'index'])->middleware('auth');
-Route::get('/expenses/create', [ExpenseController::class, 'create'])->middleware('auth');
+Route::get('/expenses', [ExpenseController::class, 'index'])->middleware('auth')->name('expenses.index');
+Route::get('/expenses/create', [ExpenseController::class, 'create'])->middleware('auth')->name('expenses.create');
 
 // employees
-Route::get('/employees', [EmployeeManagementController::class, 'index'])->middleware('auth');
-Route::get('/employees/create', [EmployeeManagementController::class, 'create'])->middleware('auth');
+Route::get('/employees', [EmployeeManagementController::class, 'index'])->middleware('auth')->name('employees.index');
+Route::get('/employees/create', [EmployeeManagementController::class, 'create'])->middleware('auth')->name('employees.create');
 
 // analytics
-Route::get('/analytics', [AnalyticsController::class, 'index'])->middleware('auth');
+Route::get('/analytics', [AnalyticsController::class, 'index'])->middleware('auth')->name('analytics.index');
 
 // settings
-Route::get('/settings', [SettingsController::class, 'index'])->middleware('auth');
-
-
+Route::get('/settings', [SettingsController::class, 'index'])->middleware('auth')->name('settings.index');
