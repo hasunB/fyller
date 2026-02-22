@@ -1,62 +1,66 @@
 import React, { useState } from 'react';
 import Layout from "@/Components/Admin/Layouts/DashboardLayout";
 import { motion } from 'framer-motion';
-import { 
-    Search, 
-    Filter, 
-    Download, 
-    Plus, 
-    MoreHorizontal, 
-    AlertTriangle, 
-    TrendingUp, 
-    BrainCircuit, 
+import {
+    Search,
+    Filter,
+    Download,
+    Plus,
+    MoreHorizontal,
+    AlertTriangle,
+    TrendingUp,
+    BrainCircuit,
     ShoppingCart,
     ArrowUpDown,
-    CheckCircle2
+    CheckCircle2,
+    Package
 } from 'lucide-react';
 import StockStatusBadge from '@/Components/Admin/UI/StockStatusBadge';
 import AIInsightBadge from '@/Components/Admin/UI/StockAiInsightBadge';
 import StockLevelBar from '@/Components/Admin/UI/StockLevelBar';
 import AdminPanelHeader from '@/Components/Admin/UI/AdminPanelHeader';
 
+interface Props {
+    products: {
+        data: Product[];
+        next_page_url: string | null;
+        prev_page_url: string | null;
+    };
+}
+
 // --- Types ---
 interface Product {
     id: number;
     name: string;
     sku: string;
-    category: string;
+    category: {
+        id: number;
+        name: string;
+    } | null;
     stock: number;
-    safetyStock: number;
+    safety_stock: number;
     price: string;
     status: 'In Stock' | 'Low Stock' | 'Critical';
-    aiInsight: 'High Demand' | 'Slow Mover' | 'Stable' | 'Reorder';
-    lastSync: string;
+    ai_insight: 'High Demand' | 'Slow Mover' | 'Stable' | 'Reorder';
+    last_sync: string;
+    image: string | null;
 }
 
-// --- Mock Data ---
-const products: Product[] = [
-    { id: 1, name: "Neural Noise-Cancelling Headphones", sku: "AUD-001", category: "Electronics", stock: 124, safetyStock: 40, price: "$299.00", status: 'In Stock', aiInsight: 'High Demand', lastSync: "2m ago" },
-    { id: 2, name: "Ergo-Lift Smart Desk", sku: "FUR-882", category: "Furniture", stock: 12, safetyStock: 15, price: "$850.00", status: 'Low Stock', aiInsight: 'Reorder', lastSync: "10m ago" },
-    { id: 3, name: "Quantum Speed Processor", sku: "CMP-992", category: "Components", stock: 5, safetyStock: 20, price: "$450.00", status: 'Critical', aiInsight: 'Reorder', lastSync: "1m ago" },
-    { id: 4, name: "Vintage Leather Satchel", sku: "ACC-331", category: "Accessories", stock: 85, safetyStock: 30, price: "$120.00", status: 'In Stock', aiInsight: 'Slow Mover', lastSync: "5m ago" },
-    { id: 5, name: "4K Ultra-Wide Monitor", sku: "SCR-221", category: "Electronics", stock: 45, safetyStock: 25, price: "$599.00", status: 'In Stock', aiInsight: 'Stable', lastSync: "Syncing..." },
-];
-
-
-export default function InventoryIndex() {
+export default function InventoryIndex({ products }: Props) {
     const [searchTerm, setSearchTerm] = useState('');
+    const productList = products.data;
 
     return (
         <Layout title="Inventory Management">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
 
                 {/* Header Section */}
-                <AdminPanelHeader 
+                <AdminPanelHeader
                     panelName="inventory"
                     title="Inventory Management"
                     description="Real-time sync active. AI is monitoring 8,432 SKUs."
                     descriptionSpanText="8,432"
-                    descriptionSpanStyle="font-bold text-indigo-400" 
+                    descriptionSpanStyle="font-bold text-indigo-400"
                     showExportButton={true}
                     AddButtonText="Add Product"
                     ExportButtonText="Export CSV"
@@ -66,15 +70,15 @@ export default function InventoryIndex() {
                 <div className="bg-gray-900/50 backdrop-blur-md border border-gray-800 rounded-xl p-4 flex flex-col md:flex-row gap-4 justify-between items-center">
                     <div className="relative w-full md:w-96">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 w-4 h-4" />
-                        <input 
-                            type="text" 
-                            placeholder="Search by SKU, Name, or Category..." 
+                        <input
+                            type="text"
+                            placeholder="Search by SKU, Name, or Category..."
                             className="w-full bg-gray-950 border border-gray-800 text-gray-200 text-sm rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
-                    
+
                     <div className="flex gap-2 w-full md:w-auto">
                         <button className="flex-1 md:flex-none flex items-center justify-center gap-2 px-3 py-2 bg-gray-950 border border-gray-800 text-gray-300 rounded-lg text-sm hover:border-gray-700">
                             <Filter className="w-4 h-4" /> Filters
@@ -86,7 +90,7 @@ export default function InventoryIndex() {
                 </div>
 
                 {/* Data Table */}
-                <motion.div 
+                <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     className="bg-gray-900/50 backdrop-blur-md border border-gray-800 rounded-xl overflow-hidden"
@@ -104,32 +108,37 @@ export default function InventoryIndex() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-800">
-                                {products.map((product) => (
+                                {productList.map((product) => (
                                     <tr key={product.id} className="hover:bg-gray-800/50 transition-colors group">
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-lg bg-gray-800 flex items-center justify-center text-gray-600">
-                                                    {/* Placeholder for Product Image */}
-                                                    <div className="w-6 h-6 bg-gray-700 rounded-sm"></div>
+                                                <div className="w-10 h-10 rounded-lg bg-gray-800 flex items-center justify-center text-gray-400 overflow-hidden">
+                                                    {product.image ? (
+                                                        <img src={`/storage/${product.image}`} alt={product.name} className="w-full h-full object-cover" />
+                                                    ) : (
+                                                        <Package className="w-5 h-5 opacity-40" />
+                                                    )}
                                                 </div>
                                                 <div>
                                                     <p className="text-sm font-medium text-white">{product.name}</p>
-                                                    <p className="text-xs text-gray-500">{product.sku} • {product.category}</p>
+                                                    <p className="text-xs text-gray-500">
+                                                        {product.sku} • {product.category?.name || 'Uncategorized'}
+                                                    </p>
                                                 </div>
                                             </div>
                                         </td>
                                         <td className="px-6 py-4">
                                             <StockStatusBadge status={product.status} />
-                                            <p className="text-[10px] text-gray-600 mt-1">Updated {product.lastSync}</p>
+                                            <p className="text-[10px] text-gray-600 mt-1">Updated {product.last_sync}</p>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <StockLevelBar current={product.stock} safety={product.safetyStock} />
+                                            <StockLevelBar current={product.stock} safety={product.safety_stock} />
                                         </td>
                                         <td className="px-6 py-4">
-                                            <AIInsightBadge insight={product.aiInsight} />
+                                            <AIInsightBadge insight={product.ai_insight} />
                                         </td>
                                         <td className="px-6 py-4 text-sm text-gray-300 font-mono">
-                                            {product.price}
+                                            ${parseFloat(product.price).toFixed(2)}
                                         </td>
                                         <td className="px-6 py-4 text-right">
                                             <button className="text-gray-500 hover:text-white p-2 rounded-lg hover:bg-gray-800 transition-colors">
@@ -141,15 +150,19 @@ export default function InventoryIndex() {
                             </tbody>
                         </table>
                     </div>
-                    
+
                     {/* Pagination / Footer */}
                     <div className="px-6 py-4 border-t border-gray-800 flex justify-between items-center bg-gray-900/30">
-                        <span className="text-xs text-gray-500">Showing 1-5 of 8,432 items</span>
+                        <span className="text-xs text-gray-500">
+                            Showing products {productList.length > 0 ? '1' : '0'} to {productList.length}
+                        </span>
                         <div className="flex gap-2">
-                            <button className="px-3 py-1 text-xs text-gray-400 bg-gray-950 border border-gray-800 rounded hover:border-gray-700">Previous</button>
-                            <button className="px-3 py-1 text-xs text-white bg-indigo-600 rounded shadow-lg shadow-indigo-500/20">1</button>
-                            <button className="px-3 py-1 text-xs text-gray-400 bg-gray-950 border border-gray-800 rounded hover:border-gray-700">2</button>
-                            <button className="px-3 py-1 text-xs text-gray-400 bg-gray-950 border border-gray-800 rounded hover:border-gray-700">Next</button>
+                            {products.prev_page_url && (
+                                <button className="px-3 py-1 text-xs text-gray-400 bg-gray-950 border border-gray-800 rounded hover:border-gray-700">Previous</button>
+                            )}
+                            {products.next_page_url && (
+                                <button className="px-3 py-1 text-xs text-gray-400 bg-gray-950 border border-gray-800 rounded hover:border-gray-700">Next</button>
+                            )}
                         </div>
                     </div>
                 </motion.div>
