@@ -1,34 +1,25 @@
 import React, { useState } from 'react';
 import Layout from "@/Components/Admin/Layouts/DashboardLayout";
 import { motion } from 'framer-motion';
-import {
-    Search,
-    Filter,
-    Download,
-    Plus,
-    MoreHorizontal,
-    AlertTriangle,
-    TrendingUp,
-    BrainCircuit,
-    ShoppingCart,
-    ArrowUpDown,
-    CheckCircle2,
-    Package
-} from 'lucide-react';
+import { Search, Filter, MoreHorizontal, Package } from 'lucide-react';
 import StockStatusBadge from '@/Components/Admin/UI/StockStatusBadge';
 import AIInsightBadge from '@/Components/Admin/UI/StockAiInsightBadge';
 import StockLevelBar from '@/Components/Admin/UI/StockLevelBar';
 import AdminPanelHeader from '@/Components/Admin/UI/AdminPanelHeader';
+import CursorPagination from '@/Components/Admin/UI/CursorPagination';
 
+// --- Types ---
 interface Props {
     products: {
         data: Product[];
         next_page_url: string | null;
         prev_page_url: string | null;
+        per_page: number;
+        path: string;
     };
+    total_skus: number;
 }
 
-// --- Types ---
 interface Product {
     id: number;
     name: string;
@@ -46,7 +37,7 @@ interface Product {
     image: string | null;
 }
 
-export default function InventoryIndex({ products }: Props) {
+export default function InventoryIndex({ products, total_skus }: Props) {
     const [searchTerm, setSearchTerm] = useState('');
     const productList = products.data;
 
@@ -58,8 +49,8 @@ export default function InventoryIndex({ products }: Props) {
                 <AdminPanelHeader
                     panelName="inventory"
                     title="Inventory Management"
-                    description="Real-time sync active. AI is monitoring 8,432 SKUs."
-                    descriptionSpanText="8,432"
+                    description={`Real-time sync active. AI is monitoring ${total_skus.toLocaleString()} SKUs.`}
+                    descriptionSpanText={total_skus.toLocaleString()}
                     descriptionSpanStyle="font-bold text-indigo-400"
                     showExportButton={true}
                     AddButtonText="Add Product"
@@ -114,7 +105,7 @@ export default function InventoryIndex({ products }: Props) {
                                             <div className="flex items-center gap-3">
                                                 <div className="w-10 h-10 rounded-lg bg-gray-800 flex items-center justify-center text-gray-400 overflow-hidden">
                                                     {product.image ? (
-                                                        <img src={`/storage/${product.image}`} alt={product.name} className="w-full h-full object-cover" />
+                                                        <img src={'/storage/' + product.image} alt={product.name} className="w-full h-full object-cover" />
                                                     ) : (
                                                         <Package className="w-5 h-5 opacity-40" />
                                                     )}
@@ -151,20 +142,8 @@ export default function InventoryIndex({ products }: Props) {
                         </table>
                     </div>
 
-                    {/* Pagination / Footer */}
-                    <div className="px-6 py-4 border-t border-gray-800 flex justify-between items-center bg-gray-900/30">
-                        <span className="text-xs text-gray-500">
-                            Showing products {productList.length > 0 ? '1' : '0'} to {productList.length}
-                        </span>
-                        <div className="flex gap-2">
-                            {products.prev_page_url && (
-                                <button className="px-3 py-1 text-xs text-gray-400 bg-gray-950 border border-gray-800 rounded hover:border-gray-700">Previous</button>
-                            )}
-                            {products.next_page_url && (
-                                <button className="px-3 py-1 text-xs text-gray-400 bg-gray-950 border border-gray-800 rounded hover:border-gray-700">Next</button>
-                            )}
-                        </div>
-                    </div>
+                    {/* Pagination / Footer (Cursor Pagination) */}
+                    <CursorPagination data={products} />
                 </motion.div>
             </div>
         </Layout>

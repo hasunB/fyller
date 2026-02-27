@@ -4,20 +4,11 @@ import { motion } from 'framer-motion';
 import {
     Search,
     Filter,
-    Download,
     Eye,
-    Plus,
-    MoreHorizontal,
     ShoppingBag,
     Clock,
     CheckCircle2,
-    XCircle,
-    Smartphone,
-    Globe,
-    Store,
-    AlertTriangle,
     ArrowUpRight,
-    Truck
 } from 'lucide-react';
 import AdminPanelHeader from '@/Components/Admin/UI/AdminPanelHeader';
 import MiniStat from '@/Components/Admin/UI/AdminMiniStat';
@@ -26,6 +17,17 @@ import OrderChannelIcon from '@/Components/Admin/UI/OrderChannelIcon';
 import OrderStatusBadge from '@/Components/Admin/UI/OrderStatusBadge';
 
 // --- Types ---
+interface Props {
+    orders: {
+        data: Order[];
+        next_page_url: string | null;
+        prev_page_url: string | null;
+        per_page: number;
+        path: string;
+    };
+    total_orders: number;
+}
+
 interface Order {
     id: string;
     customer: {
@@ -101,20 +103,21 @@ const orders: Order[] = [
     },
 ];
 
-export default function OrdersIndex() {
+export default function OrdersIndex({ orders, total_orders }: Props) {
     const [searchTerm, setSearchTerm] = useState('');
+    const orderList = orders.data;
 
     return (
         <Layout title="Orders Management">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
 
                 {/* Header Section */}
-                <AdminPanelHeader 
+                <AdminPanelHeader
                     panelName="orders"
                     title="Orders Management"
                     description="Manage and fulfill customer orders. AI Fraud Detection is Active"
                     descriptionSpanText="Active"
-                    descriptionSpanStyle="font-bold text-green-400" 
+                    descriptionSpanStyle="font-bold text-green-400"
                     showExportButton={true}
                     AddButtonText="Add Order"
                     ExportButtonText="Export CSV"
@@ -169,7 +172,7 @@ export default function OrdersIndex() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-800">
-                                {orders.map((order) => (
+                                {orderList.map((order) => (  //TODO: fill the table with object data
                                     <tr key={order.id} className="hover:bg-gray-800/50 transition-colors group">
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-2">

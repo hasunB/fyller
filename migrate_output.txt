@@ -1,0 +1,50 @@
+
+   INFO  Rolling back migrations.  
+
+  2026_02_27_124228_create_orders_table  22.16ms DONE
+  2026_02_24_105831_create_customers_table  15.70ms DONE
+  2026_02_22_073427_create_products_table  35.36ms DONE
+  0001_01_01_000002_create_jobs_table  12.88ms DONE
+  0001_01_01_000001_create_cache_table  12.71ms DONE
+  0001_01_01_000000_create_users_table  18.70ms DONE
+
+
+   INFO  Running migrations.  
+
+  0001_01_01_000000_create_users_table  61.28ms DONE
+  0001_01_01_000001_create_cache_table  20.50ms DONE
+  0001_01_01_000002_create_jobs_table  29.69ms DONE
+  2026_02_22_073427_create_products_table  34.48ms DONE
+  2026_02_24_105831_create_customers_table  25.76ms DONE
+  2026_02_27_124228_create_orders_table  25.40ms DONE
+
+
+   INFO  Seeding database.  
+
+
+   Illuminate\Database\QueryException 
+
+  SQLSTATE[42703]: Undefined column: 7 ERROR:  column "customer_type_id" of relation "customers" does not exist
+LINE 1: ..."customers" ("name", "email", "phone", "address", "customer_...
+                                                             ^ (Connection: pgsql, Host: 127.0.0.1, Port: 5432, Database: fyller_db, SQL: insert into "customers" ("name", "email", "phone", "address", "customer_type_id", "customer_status_id", "updated_at", "created_at") values (Jamar Rice, anabel.rodriguez@hotmail.com, +1.432.916.1616, 13480 Weber Cliffs Apt. 362
+VonRuedenstad, FL 88166-3264, 1, 4, 2026-02-27 16:49:33, 2026-02-27 16:49:33) returning "id")
+
+  at vendor\laravel\framework\src\Illuminate\Database\Connection.php:838
+    834▕             $exceptionType = $this->isUniqueConstraintError($e)
+    835▕                 ? UniqueConstraintViolationException::class
+    836▕                 : QueryException::class;
+    837▕ 
+  ➜ 838▕             throw new $exceptionType(
+    839▕                 $this->getNameWithReadWriteType(),
+    840▕                 $query,
+    841▕                 $this->prepareBindings($bindings),
+    842▕                 $e,
+
+  1   vendor\laravel\framework\src\Illuminate\Database\Connection.php:425
+      PDOException::("SQLSTATE[42703]: Undefined column: 7 ERROR:  column "customer_type_id" of relation "customers" does not exist
+LINE 1: ..."customers" ("name", "email", "phone", "address", "customer_...
+                                                             ^")
+
+  2   vendor\laravel\framework\src\Illuminate\Database\Connection.php:425
+      PDOStatement::execute()
+

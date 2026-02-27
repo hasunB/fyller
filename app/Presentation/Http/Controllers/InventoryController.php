@@ -14,8 +14,16 @@ class InventoryController extends Controller
 {
     public function index()
     {
+        $products = Product::with('category')
+            ->orderBy('created_at', 'desc')
+            ->orderBy('id', 'desc')
+            ->cursorPaginate(15)
+            ->withQueryString();
+        $total_skus = Product::count();
+
         return Inertia::render('Admin/Inventory/index', [
-            'products' => Product::with('category')->latest()->cursorPaginate(10),
+            'products' => $products,
+            'total_skus' => $total_skus,
         ]);
     }
 
@@ -62,7 +70,6 @@ class InventoryController extends Controller
             Product::create($validated);
 
             return redirect()->route('inventory.create')->with('success', 'Product created successfully.');
-        
         } catch (\Throwable $th) {
             throw $th;
         }

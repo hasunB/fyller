@@ -1,0 +1,44 @@
+
+  Dropping all tables  92.78ms DONE
+
+   INFO  Preparing database.  
+
+  Creating migration table  19.74ms DONE
+
+   INFO  Running migrations.  
+
+  0001_01_01_000000_create_users_table  29.44ms DONE
+  0001_01_01_000001_create_cache_table  11.55ms DONE
+  0001_01_01_000002_create_jobs_table  26.90ms DONE
+  2026_02_22_073427_create_products_table  19.18ms DONE
+  2026_02_24_105831_create_customers_table  17.87ms DONE
+  2026_02_27_124228_create_orders_table  27.16ms DONE
+
+
+   INFO  Seeding database.  
+
+
+   Illuminate\Database\QueryException 
+
+  SQLSTATE[23503]: Foreign key violation: 7 ERROR:  insert or update on table "customers" violates foreign key constraint "customers_customer_type_id_foreign"
+DETAIL:  Key (customer_type_id)=(1) is not present in table "customer_types". (Connection: pgsql, Host: 127.0.0.1, Port: 5432, Database: fyller_db, SQL: insert into "customers" ("name", "email", "phone", "address", "customer_type_id", "customer_status_id", "updated_at", "created_at") values (Margarette Lakin, jacobs.raoul@reinger.com, (541) 721-6217, 704 Lindgren Squares
+Bergstromland, NE 79107-5986, 1, 3, 2026-02-27 16:51:48, 2026-02-27 16:51:48) returning "id")
+
+  at vendor\laravel\framework\src\Illuminate\Database\Connection.php:838
+    834▕             $exceptionType = $this->isUniqueConstraintError($e)
+    835▕                 ? UniqueConstraintViolationException::class
+    836▕                 : QueryException::class;
+    837▕ 
+  ➜ 838▕             throw new $exceptionType(
+    839▕                 $this->getNameWithReadWriteType(),
+    840▕                 $query,
+    841▕                 $this->prepareBindings($bindings),
+    842▕                 $e,
+
+  1   vendor\laravel\framework\src\Illuminate\Database\Connection.php:425
+      PDOException::("SQLSTATE[23503]: Foreign key violation: 7 ERROR:  insert or update on table "customers" violates foreign key constraint "customers_customer_type_id_foreign"
+DETAIL:  Key (customer_type_id)=(1) is not present in table "customer_types".")
+
+  2   vendor\laravel\framework\src\Illuminate\Database\Connection.php:425
+      PDOStatement::execute()
+
