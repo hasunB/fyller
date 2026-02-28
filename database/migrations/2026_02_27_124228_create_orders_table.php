@@ -11,6 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
+        Schema::create('channel_types', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->timestamps();
+        });
+
         Schema::create('payment_status', function (Blueprint $table) {
             $table->id();
             $table->string('name');
@@ -32,6 +38,7 @@ return new class extends Migration
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
             $table->string('order_number');
+            $table->foreignId('channel_type_id')->constrained('channel_types')->cascadeOnDelete();
             $table->foreignId('customer_id')->constrained()->cascadeOnDelete();
             $table->foreignId('payment_status_id')->constrained('payment_status')->cascadeOnDelete();
             $table->foreignId('payment_type_id')->constrained('payment_type')->cascadeOnDelete();
@@ -51,6 +58,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('orders');
+        Schema::dropIfExists('channel_types');
         Schema::dropIfExists('payment_status');
         Schema::dropIfExists('payment_type');
         Schema::dropIfExists('fulfillment_status');

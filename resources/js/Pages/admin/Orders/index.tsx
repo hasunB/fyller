@@ -15,6 +15,7 @@ import MiniStat from '@/Components/Admin/UI/AdminMiniStat';
 import AiPriorityTag from '@/Components/Admin/UI/AiPriorityTag';
 import OrderChannelIcon from '@/Components/Admin/UI/OrderChannelIcon';
 import OrderStatusBadge from '@/Components/Admin/UI/OrderStatusBadge';
+import CursorPagination from '@/Components/Admin/UI/CursorPagination';
 
 // --- Types ---
 interface Props {
@@ -26,84 +27,96 @@ interface Props {
         path: string;
     };
     total_orders: number;
+    total_revenue: string;
+    return_rate: string;
+    total_pending_orders: number;
+    total_delivered_orders: number;
+    total_failed_orders: number;
 }
 
 interface Order {
     id: string;
+    channel_type: {
+        name: string;
+    };
+    order_number: string;
+    last_sync: string;
     customer: {
         name: string;
         email: string;
-        avatar: string; // Initials or URL
     };
-    date: string;
-    channel: 'Web' | 'Mobile' | 'POS';
-    paymentStatus: 'Paid' | 'Pending' | 'Failed';
-    fulfillmentStatus: 'Unfulfilled' | 'Processing' | 'Shipped' | 'Delivered';
+    created_at: string;
+    payment_status: {
+        name: string;
+    };
+    fulfillment_status: {
+        name: string;
+    };
     items: number;
     total: string;
-    aiPriority: 'High' | 'Normal' | 'Fraud Risk'; // AI Feature
+    ai_priority: string; // AI Feature
 }
 
 // --- Mock Data ---
-const orders: Order[] = [
-    {
-        id: "#ORD-7721",
-        customer: { name: "Alice Freeman", email: "alice@example.com", avatar: "AF" },
-        date: "Just now",
-        channel: 'Web',
-        paymentStatus: 'Paid',
-        fulfillmentStatus: 'Processing',
-        items: 3,
-        total: "$420.50",
-        aiPriority: 'High'
-    },
-    {
-        id: "#ORD-7720",
-        customer: { name: "Mark Taylor", email: "mark.t@gmail.com", avatar: "MT" },
-        date: "15m ago",
-        channel: 'Mobile',
-        paymentStatus: 'Paid',
-        fulfillmentStatus: 'Unfulfilled',
-        items: 1,
-        total: "$85.00",
-        aiPriority: 'Normal'
-    },
-    {
-        id: "#ORD-7719",
-        customer: { name: "Walk-in Guest", email: "-", avatar: "G" },
-        date: "42m ago",
-        channel: 'POS',
-        paymentStatus: 'Paid',
-        fulfillmentStatus: 'Delivered',
-        items: 5,
-        total: "$1,250.00",
-        aiPriority: 'Normal'
-    },
-    {
-        id: "#ORD-7718",
-        customer: { name: "Suspicious User", email: "temp123@guerrillamail.com", avatar: "SU" },
-        date: "1h ago",
-        channel: 'Web',
-        paymentStatus: 'Pending',
-        fulfillmentStatus: 'Unfulfilled',
-        items: 12,
-        total: "$3,400.00",
-        aiPriority: 'Fraud Risk'
-    },
-    {
-        id: "#ORD-7717",
-        customer: { name: "Sarah Connor", email: "sarah@skynet.com", avatar: "SC" },
-        date: "2h ago",
-        channel: 'Web',
-        paymentStatus: 'Failed',
-        fulfillmentStatus: 'Unfulfilled',
-        items: 2,
-        total: "$120.00",
-        aiPriority: 'Normal'
-    },
-];
+// const orders: Order[] = [
+//     {
+//         id: "#ORD-7721",
+//         customer: { name: "Alice Freeman", email: "alice@example.com", avatar: "AF" },
+//         date: "Just now",
+//         channel: 'Web',
+//         paymentStatus: 'Paid',
+//         fulfillmentStatus: 'Processing',
+//         items: 3,
+//         total: "$420.50",
+//         aiPriority: 'High'
+//     },
+//     {
+//         id: "#ORD-7720",
+//         customer: { name: "Mark Taylor", email: "mark.t@gmail.com", avatar: "MT" },
+//         date: "15m ago",
+//         channel: 'Mobile',
+//         paymentStatus: 'Paid',
+//         fulfillmentStatus: 'Unfulfilled',
+//         items: 1,
+//         total: "$85.00",
+//         aiPriority: 'Normal'
+//     },
+//     {
+//         id: "#ORD-7719",
+//         customer: { name: "Walk-in Guest", email: "-", avatar: "G" },
+//         date: "42m ago",
+//         channel: 'POS',
+//         paymentStatus: 'Paid',
+//         fulfillmentStatus: 'Delivered',
+//         items: 5,
+//         total: "$1,250.00",
+//         aiPriority: 'Normal'
+//     },
+//     {
+//         id: "#ORD-7718",
+//         customer: { name: "Suspicious User", email: "temp123@guerrillamail.com", avatar: "SU" },
+//         date: "1h ago",
+//         channel: 'Web',
+//         paymentStatus: 'Pending',
+//         fulfillmentStatus: 'Unfulfilled',
+//         items: 12,
+//         total: "$3,400.00",
+//         aiPriority: 'Fraud Risk'
+//     },
+//     {
+//         id: "#ORD-7717",
+//         customer: { name: "Sarah Connor", email: "sarah@skynet.com", avatar: "SC" },
+//         date: "2h ago",
+//         channel: 'Web',
+//         paymentStatus: 'Failed',
+//         fulfillmentStatus: 'Unfulfilled',
+//         items: 2,
+//         total: "$120.00",
+//         aiPriority: 'Normal'
+//     },
+// ];
 
-export default function OrdersIndex({ orders, total_orders }: Props) {
+export default function OrdersIndex({ orders, total_orders, total_pending_orders, total_revenue, return_rate }: Props) {
     const [searchTerm, setSearchTerm] = useState('');
     const orderList = orders.data;
 
@@ -125,10 +138,10 @@ export default function OrdersIndex({ orders, total_orders }: Props) {
 
                 {/* Quick Stats Row */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <MiniStat title="Today's Orders" value="142" icon={ShoppingBag} color="text-indigo-500" />
-                    <MiniStat title="Pending Processing" value="12" icon={Clock} color="text-amber-500" />
-                    <MiniStat title="Returns Rate" value="2.4%" icon={ArrowUpRight} color="text-red-500" />
-                    <MiniStat title="Total Revenue" value="$12.4k" icon={CheckCircle2} color="text-green-500" />
+                    <MiniStat title="Today's Orders" value={total_orders.toLocaleString()} icon={ShoppingBag} color="text-indigo-500" />
+                    <MiniStat title="Pending Processing" value={total_pending_orders.toLocaleString()} icon={Clock} color="text-amber-500" />
+                    <MiniStat title="Returns Rate" value={return_rate} icon={ArrowUpRight} color="text-red-500" />
+                    <MiniStat title="Total Revenue" value={total_revenue.toLocaleString()} icon={CheckCircle2} color="text-green-500" />
                 </div>
 
                 {/* Filters & Search */}
@@ -172,24 +185,22 @@ export default function OrdersIndex({ orders, total_orders }: Props) {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-800">
-                                {orderList.map((order) => (  //TODO: fill the table with object data
+
+                                {orderList.map((order) => ( 
                                     <tr key={order.id} className="hover:bg-gray-800/50 transition-colors group">
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-2">
-                                                <OrderChannelIcon channel={order.channel} />
+                                                <OrderChannelIcon channel={order.channel_type.name} />
                                                 <span className="text-sm font-semibold text-white group-hover:text-indigo-400 transition-colors">
-                                                    {order.id}
+                                                    {order.order_number}
                                                 </span>
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 text-xs text-gray-400">
-                                            {order.date}
+                                            {order.last_sync}
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-8 h-8 rounded-full bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-xs font-bold border border-indigo-500/30">
-                                                    {order.customer.avatar}
-                                                </div>
                                                 <div className="flex flex-col">
                                                     <span className="text-sm text-gray-200">{order.customer.name}</span>
                                                     <span className="text-xs text-gray-600">{order.customer.email}</span>
@@ -197,16 +208,15 @@ export default function OrdersIndex({ orders, total_orders }: Props) {
                                             </div>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <OrderStatusBadge status={order.paymentStatus} type="payment" />
+                                            <OrderStatusBadge status={order.payment_status.name} type="payment" />
                                         </td>
                                         <td className="px-6 py-4">
-                                            <OrderStatusBadge status={order.fulfillmentStatus} type="fulfillment" />
+                                            <OrderStatusBadge status={order.fulfillment_status.name} type="fulfillment" />
                                         </td>
                                         <td className="px-6 py-4">
-                                            <AiPriorityTag priority={order.aiPriority} />
+                                            <AiPriorityTag priority={order.ai_priority} />
                                         </td>
-                                        <td className="px-6 py-4 text-sm font-mono text-white text-right">
-                                            {order.total}
+                                        <td className="px-6 py-4 text-sm font-mono text-white text-right">${order.total}
                                             <span className="text-gray-600 text-xs block">{order.items} items</span>
                                         </td>
                                         <td className="px-6 py-4 text-right">
@@ -221,14 +231,7 @@ export default function OrdersIndex({ orders, total_orders }: Props) {
                     </div>
 
                     {/* Pagination */}
-                    <div className="px-6 py-4 border-t border-gray-800 flex justify-between items-center bg-gray-900/30">
-                        <span className="text-xs text-gray-500">Showing 1-5 of 142 orders</span>
-                        <div className="flex gap-2">
-                            <button className="px-3 py-1 text-xs text-gray-400 bg-gray-950 border border-gray-800 rounded hover:border-gray-700">Previous</button>
-                            <button className="px-3 py-1 text-xs text-white bg-indigo-600 rounded shadow-lg shadow-indigo-500/20">1</button>
-                            <button className="px-3 py-1 text-xs text-gray-400 bg-gray-950 border border-gray-800 rounded hover:border-gray-700">Next</button>
-                        </div>
-                    </div>
+                    <CursorPagination data={orders} />
                 </motion.div>
             </div>
         </Layout>
