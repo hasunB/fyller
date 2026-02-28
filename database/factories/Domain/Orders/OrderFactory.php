@@ -15,10 +15,11 @@ class OrderFactory extends Factory
     {
         return [
             'order_number' => $this->faker->bothify('ORD-####'),
+            'channel_type_id' => $this->faker->numberBetween(1, 3),
             'customer_id' => Customer::factory(),
             'payment_status_id' => $this->faker->numberBetween(1, 4),
             'payment_type_id' => $this->faker->numberBetween(1, 4),
-            'fulfillment_status_id' => $this->faker->numberBetween(1, 4),
+            'fulfillment_status_id' => $this->faker->numberBetween(1, 6),
             'product_id' => Product::factory(),
             'quantity' => $this->faker->numberBetween(1, 10),
             'price' => $this->faker->randomFloat(2, 100, 10000),

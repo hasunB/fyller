@@ -52,19 +52,45 @@ class DatabaseSeeder extends Seeder
             DB::table('customer_status')->insert(array_merge($status, ['created_at' => now(), 'updated_at' => now()]));
         }
 
-        $paymentStatuses = [['name' => 'Pending'], ['name' => 'Paid'], ['name' => 'Failed'], ['name' => 'Refunded']];
+        $paymentStatuses = [
+            ['name' => 'Pending'],
+            ['name' => 'Paid'],
+            ['name' => 'Failed'],
+            ['name' => 'Refunded']
+        ];
         foreach ($paymentStatuses as $status) {
             DB::table('payment_status')->insert(array_merge($status, ['created_at' => now(), 'updated_at' => now()]));
         }
 
-        $paymentTypes = [['name' => 'Credit Card'], ['name' => 'PayPal'], ['name' => 'Bank Transfer'], ['name' => 'Cash']];
+        $paymentTypes = [
+            ['name' => 'Credit Card'],
+            ['name' => 'PayPal'],
+            ['name' => 'Bank Transfer'],
+            ['name' => 'Cash']
+        ];
         foreach ($paymentTypes as $type) {
             DB::table('payment_type')->insert(array_merge($type, ['created_at' => now(), 'updated_at' => now()]));
         }
 
-        $fulfillmentStatuses = [['name' => 'Unfulfilled'], ['name' => 'Processing'], ['name' => 'Shipped'], ['name' => 'Delivered']];
+        $fulfillmentStatuses = [
+            ['name' => 'Unfulfilled'],
+            ['name' => 'Processing'],
+            ['name' => 'Shipped'],
+            ['name' => 'Delivered'],
+            ['name' => 'Returned'],
+            ['name' => 'Cancelled']
+        ];
         foreach ($fulfillmentStatuses as $status) {
             DB::table('fulfillment_status')->insert(array_merge($status, ['created_at' => now(), 'updated_at' => now()]));
+        }
+
+        $channelTypes = [
+            ['name' => 'Web'],
+            ['name' => 'Mobile'],
+            ['name' => 'POS']
+        ];
+        foreach ($channelTypes as $type) {
+            DB::table('channel_types')->insert(array_merge($type, ['created_at' => now(), 'updated_at' => now()]));
         }
 
         Customer::factory(10)->create();

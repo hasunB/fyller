@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Domain\Orders\Models\FulfillmentStatus;
 use App\Domain\Orders\Models\PaymentStatus;
 use App\Domain\Orders\Models\PaymentType;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class Order extends Model
 {
@@ -24,6 +25,9 @@ class Order extends Model
         'status',
     ];
 
+    protected $appends = ['last_sync', 'ai_priority'];
+
+    // relations
     public function customer()
     {
         return $this->belongsTo(Customer::class);
@@ -32,6 +36,11 @@ class Order extends Model
     public function products()
     {
         return $this->hasMany(Product::class);
+    }
+
+    public function channel_type()
+    {
+        return $this->belongsTo(ChannelType::class);
     }
 
     public function fulfillment_status()
@@ -47,5 +56,24 @@ class Order extends Model
     public function payment_type()
     {
         return $this->belongsTo(PaymentType::class);
+    }
+
+    // appends
+    protected function lastSync(): Attribute
+    {
+        return Attribute::make(
+            get: fn() => $this->updated_at->diffForHumans()
+        );
+    }
+
+    protected function aiPriority(): Attribute
+    {
+        return Attribute::make(
+            get: fn() => match (true) {
+                $this->total > 9000 => 'Fraud Risk',
+                $this->total > 4000 => 'High',
+                default => 'Normal',
+            }
+        );
     }
 }
