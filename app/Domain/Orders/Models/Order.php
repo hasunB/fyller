@@ -2,7 +2,6 @@
 
 namespace App\Domain\Orders\Models;
 
-use App\Domain\Inventory\Models\Product;
 use App\Domain\Customers\Models\Customer;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -25,7 +24,7 @@ class Order extends Model
         'status',
     ];
 
-    protected $appends = ['last_sync', 'ai_priority'];
+    protected $appends = ['last_sync', 'ai_priority', 'total_amount'];
 
     // relations
     public function customer()
@@ -33,9 +32,9 @@ class Order extends Model
         return $this->belongsTo(Customer::class);
     }
 
-    public function products()
+    public function order_items()
     {
-        return $this->hasMany(Product::class);
+        return $this->hasMany(OrderItem::class);
     }
 
     public function channel_type()
@@ -70,9 +69,19 @@ class Order extends Model
     {
         return Attribute::make(
             get: fn() => match (true) {
-                $this->total > 9000 => 'Fraud Risk',
-                $this->total > 4000 => 'High',
+                $this->order_items()->sum('total') > 9000 => 'Fraud Risk',
+                $this->order_items()->sum('total') > 4000 => 'High',
                 default => 'Normal',
+            }
+        );
+    }
+
+    protected function totalAmount(): Attribute
+    {
+        return Attribute::make(
+            get: function () {
+                // Sums up the 'total' column from the related orderItems
+                return $this->order_items()->sum('total');
             }
         );
     }

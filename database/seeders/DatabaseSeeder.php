@@ -7,6 +7,7 @@ use App\Domain\User\Models\User;
 use App\Domain\Inventory\Models\Category;
 use App\Domain\Inventory\Models\Product;
 use App\Domain\Orders\Models\Order;
+use App\Domain\Orders\Models\OrderItem;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
@@ -95,5 +96,6 @@ class DatabaseSeeder extends Seeder
 
         Customer::factory(10)->create();
         Order::factory(30)->create();
+        OrderItem::factory(50)->create();
     }
 }

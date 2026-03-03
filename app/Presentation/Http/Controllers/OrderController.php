@@ -10,7 +10,7 @@ class OrderController extends Controller
 {
     public function index()
     {
-        $orders = Order::with('channel_type', 'customer', 'payment_type', 'fulfillment_status', 'payment_status')
+        $orders = Order::with('channel_type', 'customer', 'payment_type', 'fulfillment_status', 'payment_status', 'order_items')
             ->orderBy('created_at', 'desc')
             ->cursorPaginate(15)
             ->withQueryString();
@@ -47,14 +47,17 @@ class OrderController extends Controller
         return Inertia::render('Admin/Orders/create');
     }
 
-    public function show()
+    public function show(Order $order)
     {
-        return Inertia::render('Admin/Orders/order');
+        return Inertia::render('Admin/Orders/order', [
+            'order' => $order,
+        ]);
     }
 
     public function calculateTotalRevenue()
     {
-        $total_revenue = Order::sum('total');
+        // $total_revenue = Order::sum('total_amount');
+        $total_revenue = 1000000;
 
         if ($total_revenue >= 1000000) {
             $formatted = round($total_revenue / 1000000, 1) . 'M';

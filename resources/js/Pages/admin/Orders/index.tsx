@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Layout from "@/Components/Admin/Layouts/DashboardLayout";
 import { motion } from 'framer-motion';
+import { Link } from '@inertiajs/react';
 import {
     Search,
     Filter,
@@ -52,9 +53,16 @@ interface Order {
     fulfillment_status: {
         name: string;
     };
-    items: number;
-    total: string;
+    order_items: {
+        product: {
+            name: string;
+        };
+        quantity: number;
+        price: number;
+        total: number;
+    }[];
     ai_priority: string; // AI Feature
+    total_amount: number | string;
 }
 
 // --- Mock Data ---
@@ -186,7 +194,7 @@ export default function OrdersIndex({ orders, total_orders, total_pending_orders
                             </thead>
                             <tbody className="divide-y divide-gray-800">
 
-                                {orderList.map((order) => ( 
+                                {orderList.map((order) => (
                                     <tr key={order.id} className="hover:bg-gray-800/50 transition-colors group">
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-2">
@@ -216,13 +224,13 @@ export default function OrdersIndex({ orders, total_orders, total_pending_orders
                                         <td className="px-6 py-4">
                                             <AiPriorityTag priority={order.ai_priority} />
                                         </td>
-                                        <td className="px-6 py-4 text-sm font-mono text-white text-right">${order.total}
-                                            <span className="text-gray-600 text-xs block">{order.items} items</span>
+                                        <td className="px-6 py-4 text-sm font-mono text-white text-right">${order.total_amount}
+                                            <span className="text-gray-600 text-xs block">{order.order_items.length} items</span>
                                         </td>
                                         <td className="px-6 py-4 text-right">
-                                            <button className="text-gray-500 hover:text-white p-2 rounded-lg hover:bg-gray-800 transition-colors">
+                                            <Link href={`/orders/${order.id}`} className="text-gray-500 hover:text-white p-2 rounded-lg hover:bg-gray-800 transition-colors">
                                                 <Eye className="w-4 h-4" />
-                                            </button>
+                                            </Link>
                                         </td>
                                     </tr>
                                 ))}
