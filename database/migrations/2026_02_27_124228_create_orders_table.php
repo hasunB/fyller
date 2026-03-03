@@ -43,11 +43,17 @@ return new class extends Migration
             $table->foreignId('payment_status_id')->constrained('payment_status')->cascadeOnDelete();
             $table->foreignId('payment_type_id')->constrained('payment_type')->cascadeOnDelete();
             $table->foreignId('fulfillment_status_id')->constrained('fulfillment_status')->cascadeOnDelete();
+            $table->boolean('status')->default(true);
+            $table->timestamps();
+        });
+
+        Schema::create('order_items', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('order_id')->constrained()->cascadeOnDelete();
             $table->foreignId('product_id')->constrained()->cascadeOnDelete();
             $table->integer('quantity');
             $table->decimal('price', 10, 2);
             $table->decimal('total', 10, 2);
-            $table->boolean('status')->default(true);
             $table->timestamps();
         });
     }

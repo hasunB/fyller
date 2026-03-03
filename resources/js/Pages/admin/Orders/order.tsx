@@ -7,8 +7,42 @@ import OrderChannelIcon from '@/Components/Admin/UI/OrderChannelIcon';
 import OrderStatusBadge from '@/Components/Admin/UI/OrderStatusBadge';
 import AiPriorityCard from '@/Components/Admin/UI/AiPriorityCard';
 
+interface OrderShowProps {
+    order: {
+        id: string;
+        channel_type: {
+            name: string;
+        };
+        order_number: string;
+        last_sync: string;
+        customer: {
+            name: string;
+            email: string;
+            created_at: string;
+        };
+        created_at: string;
+        payment_status: {
+            name: string;
+        };
+        fulfillment_status: {
+            name: string;
+        };
+        order_items: {
+            product: {
+                id: string;
+                name: string;
+                sku: string;
+            };
+            quantity: number;
+            price: number;
+            total: number;
+        }[];
+        ai_priority: string; // AI Feature
+    };
+}
+
 // --- Mock Data for a Single Order ---
-const order = {
+const Order = {
     id: "#ORD-7718",
     date: "Oct 24, 2026 at 1:42 PM",
     channel: 'Web',
@@ -52,7 +86,7 @@ const order = {
 
 export default function OrderShow() {
     return (
-        <Layout title={`Order ${order.id}`}>
+        <Layout title={`Order`}>
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
 
                 {/* Header Actions */}
@@ -63,14 +97,14 @@ export default function OrderShow() {
                         </Link>
                         <div>
                             <div className="flex items-center gap-3">
-                                <h1 className="text-2xl font-bold text-white">{order.id}</h1>
-                                <OrderStatusBadge status={order.paymentStatus} type="payment" />
-                                <OrderStatusBadge status={order.fulfillmentStatus} type="fulfillment" />
+                                <h1 className="text-2xl font-bold text-white">{Order.id}</h1>
+                                <OrderStatusBadge status={Order.paymentStatus} type="payment" />
+                                <OrderStatusBadge status={Order.fulfillmentStatus} type="fulfillment" />
                             </div>
                             <div className="flex items-center gap-1">
-                                <p className="text-gray-400 text-sm mt-1 me-3">{order.date}</p>
-                                <OrderChannelIcon channel={order.channel} />
-                                <p>{order.channel}</p>
+                                <p className="text-gray-400 text-sm mt-1 me-3">{Order.date}</p>
+                                <OrderChannelIcon channel={Order.channel} />
+                                <p>{Order.channel}</p>
                             </div>
                         </div>
                     </div>
@@ -89,12 +123,12 @@ export default function OrderShow() {
 
                 {/* Main Grid Layout */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    
+
                     {/* LEFT COLUMN: Items & Timeline */}
                     <div className="lg:col-span-2 space-y-6">
-                        
+
                         {/* 1. Order Items */}
-                        <motion.div 
+                        <motion.div
                             initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
                             className="bg-gray-900/50 backdrop-blur-md border border-gray-800 rounded-xl overflow-hidden"
                         >
@@ -102,14 +136,14 @@ export default function OrderShow() {
                                 <h3 className="text-lg font-bold text-white flex items-center gap-2">
                                     <Package className="w-5 h-5 text-gray-400" /> Order Items
                                 </h3>
-                                <span className="text-sm text-gray-400">{order.items.length} items</span>
+                                <span className="text-sm text-gray-400">{Order.items.length} items</span>
                             </div>
                             <div className="p-6 space-y-4">
-                                {order.items.map((item) => (
+                                {Order.items.map((item) => (
                                     <div key={item.id} className="flex justify-between items-center py-2 border-b border-gray-800/50 last:border-0">
                                         <div className="flex items-center gap-4">
                                             <div className="w-12 h-12 bg-gray-800 rounded-lg flex items-center justify-center text-2xl">
-                                                {item.image}
+                                                {/* {item.product.image} */}
                                             </div>
                                             <div>
                                                 <p className="text-sm font-bold text-white">{item.name}</p>
@@ -132,7 +166,7 @@ export default function OrderShow() {
                         </motion.div>
 
                         {/* 2. Order Timeline */}
-                        <motion.div 
+                        <motion.div
                             initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
                             className="bg-gray-900/50 backdrop-blur-md border border-gray-800 rounded-xl p-6"
                         >
@@ -140,7 +174,7 @@ export default function OrderShow() {
                                 <Clock className="w-5 h-5 text-gray-400" /> Activity Timeline
                             </h3>
                             <div className="space-y-6 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-gray-800 before:to-transparent">
-                                {order.timeline.map((event, index) => {
+                                {Order.timeline.map((event, index) => {
                                     const Icon = event.icon;
                                     let colorClass = "bg-gray-800 text-gray-500 border-gray-700";
                                     if (event.status === 'completed') colorClass = "bg-emerald-500/20 text-emerald-500 border-emerald-500/50";
@@ -168,12 +202,12 @@ export default function OrderShow() {
 
                     {/* RIGHT COLUMN: Customer, AI, Financials */}
                     <div className="space-y-6">
-                        
+
                         {/* 3. AI Risk Analysis Card (Crucial for CFO theme) */}
-                        <AiPriorityCard priority={order.aiPriority} reason="" />
+                        <AiPriorityCard priority={Order.aiPriority} reason="" />
 
                         {/* 4. Customer Details */}
-                        <motion.div 
+                        <motion.div
                             initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 }}
                             className="bg-gray-900/50 backdrop-blur-md border border-gray-800 rounded-xl p-6"
                         >
@@ -182,37 +216,37 @@ export default function OrderShow() {
                             </h3>
                             <div className="flex items-center gap-4 mb-6">
                                 <div className="w-12 h-12 rounded-full bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold text-lg border border-indigo-500/30">
-                                    {order.customer.avatar}
+                                    lk
                                 </div>
                                 <div>
-                                    <p className="text-sm font-bold text-white">{order.customer.name}</p>
-                                    <p className="text-xs text-gray-500">Customer since {order.customer.accountCreated}</p>
+                                    <p className="text-sm font-bold text-white">{Order.customer.name}</p>
+                                    {/* <p className="text-xs text-gray-500">Customer since {Order.customer.createdAt}</p> */}
                                 </div>
                             </div>
-                            
+
                             <div className="space-y-3 text-sm">
                                 <div className="flex items-center gap-3 text-gray-300">
-                                    <Mail className="w-4 h-4 text-gray-500" /> {order.customer.email}
+                                    <Mail className="w-4 h-4 text-gray-500" /> {Order.customer.email}
                                 </div>
                                 <div className="flex items-center gap-3 text-gray-300">
-                                    <Phone className="w-4 h-4 text-gray-500" /> {order.customer.phone}
+                                    <Phone className="w-4 h-4 text-gray-500" /> 07710448467
                                 </div>
                             </div>
 
                             <div className="grid grid-cols-2 gap-4 mt-6 pt-6 border-t border-gray-800">
                                 <div>
                                     <p className="text-xs text-gray-500 mb-1">Total Orders</p>
-                                    <p className="text-lg font-bold text-white">{order.customer.ordersCount}</p>
+                                    <p className="text-lg font-bold text-white">{Order.customer.ordersCount}</p>
                                 </div>
                                 <div>
                                     <p className="text-xs text-gray-500 mb-1">Lifetime Value</p>
-                                    <p className="text-lg font-bold text-white">{order.customer.lifetimeValue}</p>
+                                    <p className="text-lg font-bold text-white">{Order.customer.lifetimeValue}</p>
                                 </div>
                             </div>
                         </motion.div>
 
                         {/* 5. Shipping & Billing */}
-                        <motion.div 
+                        <motion.div
                             initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}
                             className="bg-gray-900/50 backdrop-blur-md border border-gray-800 rounded-xl p-6"
                         >
@@ -223,9 +257,9 @@ export default function OrderShow() {
                                 <div>
                                     <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Shipping Address</h4>
                                     <p className="text-sm text-gray-300 leading-relaxed">
-                                        {order.shippingAddress.line1}<br />
-                                        {order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.zip}<br />
-                                        {order.shippingAddress.country}
+                                        {Order.shippingAddress.line1}<br />
+                                        {Order.shippingAddress.city}, {Order.shippingAddress.state} {Order.shippingAddress.zip}<br />
+                                        {Order.shippingAddress.country}
                                     </p>
                                 </div>
                                 <div className="pt-4 border-t border-gray-800">
@@ -236,7 +270,7 @@ export default function OrderShow() {
                         </motion.div>
 
                         {/* 6. Order Summary */}
-                        <motion.div 
+                        <motion.div
                             initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}
                             className="bg-gray-900/50 backdrop-blur-md border border-gray-800 rounded-xl p-6"
                         >
@@ -246,23 +280,22 @@ export default function OrderShow() {
                             <div className="space-y-3">
                                 <div className="flex justify-between text-gray-400 text-sm">
                                     <span>Subtotal</span>
-                                    <span>${order.financials.subtotal.toFixed(2)}</span>
+                                    <span>${Order.financials.subtotal.toFixed(2)}</span>
                                 </div>
                                 <div className="flex justify-between text-gray-400 text-sm">
                                     <span>Shipping</span>
-                                    <span>${order.financials.shipping.toFixed(2)}</span>
+                                    <span>${Order.financials.shipping.toFixed(2)}</span>
                                 </div>
                                 <div className="flex justify-between text-gray-400 text-sm">
                                     <span>Tax</span>
-                                    <span>${order.financials.tax.toFixed(2)}</span>
+                                    <span>${Order.financials.tax.toFixed(2)}</span>
                                 </div>
                                 <div className="border-t border-gray-800 my-2 pt-2 flex justify-between text-white text-lg font-bold">
                                     <span>Total</span>
-                                    <span>${order.financials.total.toFixed(2)}</span>
+                                    <span>${Order.financials.total.toFixed(2)}</span>
                                 </div>
                             </div>
                         </motion.div>
-
                     </div>
                 </div>
             </div>
