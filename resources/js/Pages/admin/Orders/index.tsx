@@ -63,6 +63,7 @@ interface Order {
     }[];
     ai_priority: string; // AI Feature
     total_amount: number | string;
+    subtotal_amount: number | string;
 }
 
 // --- Mock Data ---
@@ -224,7 +225,7 @@ export default function OrdersIndex({ orders, total_orders, total_pending_orders
                                         <td className="px-6 py-4">
                                             <AiPriorityTag priority={order.ai_priority} />
                                         </td>
-                                        <td className="px-6 py-4 text-sm font-mono text-white text-right">${order.total_amount}
+                                        <td className="px-6 py-4 text-sm font-mono text-white text-right">${Number(order.subtotal_amount).toFixed(2)}
                                             <span className="text-gray-600 text-xs block">{order.order_items.length} items</span>
                                         </td>
                                         <td className="px-6 py-4 text-right">

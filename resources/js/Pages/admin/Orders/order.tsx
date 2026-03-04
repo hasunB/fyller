@@ -18,7 +18,11 @@ interface OrderShowProps {
         customer: {
             name: string;
             email: string;
+            phone: string;
+            address: string;
             created_at: string;
+            orders_count: number;
+            lifetime_value: string;
         };
         created_at: string;
         payment_status: {
@@ -28,16 +32,22 @@ interface OrderShowProps {
             name: string;
         };
         order_items: {
+            id: string;
             product: {
                 id: string;
                 name: string;
                 sku: string;
-            };
+                image: string;
+            } | null;
             quantity: number;
-            price: number;
-            total: number;
+            price: string;
+            total: string;
         }[];
         ai_priority: string; // AI Feature
+        total_amount: number | string;
+        shipping_amount: number;
+        tax_amount: number | string;
+        subtotal_amount: number | string;
     };
 }
 
@@ -84,9 +94,9 @@ const Order = {
     ]
 };
 
-export default function OrderShow() {
+export default function OrderShow({ order }: OrderShowProps) {
     return (
-        <Layout title={`Order`}>
+        <Layout title={`${order.order_number}`}>
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
 
                 {/* Header Actions */}
@@ -97,14 +107,16 @@ export default function OrderShow() {
                         </Link>
                         <div>
                             <div className="flex items-center gap-3">
-                                <h1 className="text-2xl font-bold text-white">{Order.id}</h1>
-                                <OrderStatusBadge status={Order.paymentStatus} type="payment" />
-                                <OrderStatusBadge status={Order.fulfillmentStatus} type="fulfillment" />
+                                <h1 className="text-2xl font-bold text-white">#{order.order_number}</h1>
+                                <OrderStatusBadge status={order.payment_status.name} type="payment" />
+                                <OrderStatusBadge status={order.fulfillment_status.name} type="fulfillment" />
                             </div>
                             <div className="flex items-center gap-1">
-                                <p className="text-gray-400 text-sm mt-1 me-3">{Order.date}</p>
-                                <OrderChannelIcon channel={Order.channel} />
-                                <p>{Order.channel}</p>
+                                <p className="text-gray-400 text-sm mt-1 me-3">
+                                    {new Date(order.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} at {new Date(order.created_at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}
+                                </p>
+                                <OrderChannelIcon channel={order.channel_type.name} />
+                                <p>{order.channel_type.name}</p>
                             </div>
                         </div>
                     </div>
@@ -136,23 +148,31 @@ export default function OrderShow() {
                                 <h3 className="text-lg font-bold text-white flex items-center gap-2">
                                     <Package className="w-5 h-5 text-gray-400" /> Order Items
                                 </h3>
-                                <span className="text-sm text-gray-400">{Order.items.length} items</span>
+                                <span className="text-sm text-gray-400">{order.order_items.length} items</span>
                             </div>
                             <div className="p-6 space-y-4">
-                                {Order.items.map((item) => (
-                                    <div key={item.id} className="flex justify-between items-center py-2 border-b border-gray-800/50 last:border-0">
+                                {order.order_items?.map((item) => (
+                                    <div key={item.product?.id} className="flex justify-between items-center py-2 border-b border-gray-800/50 last:border-0">
                                         <div className="flex items-center gap-4">
                                             <div className="w-12 h-12 bg-gray-800 rounded-lg flex items-center justify-center text-2xl">
-                                                {/* {item.product.image} */}
+                                                {item.product?.image ? (
+                                                    <img src={'/storage/' + item.product?.image} alt={item.product?.name} className="w-full h-full object-cover" />
+                                                ) : (
+                                                    <Package className="w-5 h-5 opacity-40" />
+                                                )}
                                             </div>
                                             <div>
-                                                <p className="text-sm font-bold text-white">{item.name}</p>
-                                                <p className="text-xs text-gray-500">SKU: {item.sku}</p>
+                                                <p className="text-sm font-bold text-white">{item.product?.name}</p>
+                                                <p className="text-xs text-gray-500">SKU: {item.product?.sku}</p>
                                             </div>
                                         </div>
                                         <div className="text-right">
-                                            <p className="text-sm text-white">${item.price.toFixed(2)} × {item.quantity}</p>
-                                            <p className="text-sm font-bold text-indigo-400">${item.total.toFixed(2)}</p>
+                                            <p className="text-sm text-white">
+                                                $ {parseFloat(item.price).toFixed(2)} × {item.quantity}
+                                            </p>
+                                            <p className="text-sm font-bold text-indigo-400">
+                                                $ {parseFloat(item.total).toFixed(2)}
+                                            </p>
                                         </div>
                                     </div>
                                 ))}
@@ -160,7 +180,7 @@ export default function OrderShow() {
                             <div className="p-6 bg-gray-950/50 border-t border-gray-800">
                                 <div className="flex justify-between items-center">
                                     <button className="text-sm text-indigo-400 hover:text-indigo-300">Edit Items</button>
-                                    <p className="text-sm text-gray-400">Total Weight: <span className="text-white">24.5 lbs</span></p>
+                                    <p className="text-sm text-gray-400">Total Weight: <span className="text-white">0.00 lbs</span></p>
                                 </div>
                             </div>
                         </motion.div>
@@ -203,8 +223,9 @@ export default function OrderShow() {
                     {/* RIGHT COLUMN: Customer, AI, Financials */}
                     <div className="space-y-6">
 
+
                         {/* 3. AI Risk Analysis Card (Crucial for CFO theme) */}
-                        <AiPriorityCard priority={Order.aiPriority} reason="" />
+                        <AiPriorityCard priority={order.ai_priority} reason="" isIgnored={false} isRefunded={order.payment_status.name === 'Refunded'} />
 
                         {/* 4. Customer Details */}
                         <motion.div
@@ -219,28 +240,30 @@ export default function OrderShow() {
                                     lk
                                 </div>
                                 <div>
-                                    <p className="text-sm font-bold text-white">{Order.customer.name}</p>
-                                    {/* <p className="text-xs text-gray-500">Customer since {Order.customer.createdAt}</p> */}
+                                    <p className="text-sm font-bold text-white">{order.customer.name}</p>
+                                    <p className="text-xs text-gray-500">
+                                        Customer since {new Date(order.customer.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                                    </p>
                                 </div>
                             </div>
 
                             <div className="space-y-3 text-sm">
                                 <div className="flex items-center gap-3 text-gray-300">
-                                    <Mail className="w-4 h-4 text-gray-500" /> {Order.customer.email}
+                                    <Mail className="w-4 h-4 text-gray-500" /> {order.customer.email}
                                 </div>
                                 <div className="flex items-center gap-3 text-gray-300">
-                                    <Phone className="w-4 h-4 text-gray-500" /> 07710448467
+                                    <Phone className="w-4 h-4 text-gray-500" /> {order.customer.phone}
                                 </div>
                             </div>
 
                             <div className="grid grid-cols-2 gap-4 mt-6 pt-6 border-t border-gray-800">
                                 <div>
                                     <p className="text-xs text-gray-500 mb-1">Total Orders</p>
-                                    <p className="text-lg font-bold text-white">{Order.customer.ordersCount}</p>
+                                    <p className="text-lg font-bold text-white">{order.customer.orders_count}</p>
                                 </div>
                                 <div>
                                     <p className="text-xs text-gray-500 mb-1">Lifetime Value</p>
-                                    <p className="text-lg font-bold text-white">{Order.customer.lifetimeValue}</p>
+                                    <p className="text-lg font-bold text-white">{order.customer.lifetime_value}</p>
                                 </div>
                             </div>
                         </motion.div>
@@ -256,15 +279,9 @@ export default function OrderShow() {
                             <div className="space-y-4">
                                 <div>
                                     <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Shipping Address</h4>
-                                    <p className="text-sm text-gray-300 leading-relaxed">
-                                        {Order.shippingAddress.line1}<br />
-                                        {Order.shippingAddress.city}, {Order.shippingAddress.state} {Order.shippingAddress.zip}<br />
-                                        {Order.shippingAddress.country}
+                                    <p className="text-sm text-gray-300 leading-relaxed w-50">
+                                        {order.customer.address}<br />
                                     </p>
-                                </div>
-                                <div className="pt-4 border-t border-gray-800">
-                                    <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Billing Address</h4>
-                                    <p className="text-sm text-gray-400 italic">Same as shipping address</p>
                                 </div>
                             </div>
                         </motion.div>
@@ -280,19 +297,19 @@ export default function OrderShow() {
                             <div className="space-y-3">
                                 <div className="flex justify-between text-gray-400 text-sm">
                                     <span>Subtotal</span>
-                                    <span>${Order.financials.subtotal.toFixed(2)}</span>
+                                    <span>$ {order.total_amount}</span>
                                 </div>
                                 <div className="flex justify-between text-gray-400 text-sm">
                                     <span>Shipping</span>
-                                    <span>${Order.financials.shipping.toFixed(2)}</span>
+                                    <span>$ {Number(order.shipping_amount).toFixed(2)}</span>
                                 </div>
                                 <div className="flex justify-between text-gray-400 text-sm">
                                     <span>Tax</span>
-                                    <span>${Order.financials.tax.toFixed(2)}</span>
+                                    <span>$ {Number(order.tax_amount).toFixed(2)}</span>
                                 </div>
                                 <div className="border-t border-gray-800 my-2 pt-2 flex justify-between text-white text-lg font-bold">
                                     <span>Total</span>
-                                    <span>${Order.financials.total.toFixed(2)}</span>
+                                    <span>$ {Number(order.subtotal_amount).toFixed(2)}</span>
                                 </div>
                             </div>
                         </motion.div>

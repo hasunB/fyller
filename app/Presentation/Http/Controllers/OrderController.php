@@ -5,6 +5,7 @@ namespace App\Presentation\Http\Controllers;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Domain\Orders\Models\Order;
+use App\Domain\Orders\Models\OrderItem;
 
 class OrderController extends Controller
 {
@@ -15,7 +16,7 @@ class OrderController extends Controller
             ->cursorPaginate(15)
             ->withQueryString();
 
-        $total_orders = Order::count();
+        $total_orders = Order::whereDate('created_at', today())->count();
         $total_revenue = $this->calculateTotalRevenue();
         $return_rate = $this->calculateReturnRate();
 
@@ -49,6 +50,12 @@ class OrderController extends Controller
 
     public function show(Order $order)
     {
+        $order->load(['channel_type', 'customer', 'payment_type', 'fulfillment_status', 'payment_status', 'order_items.product']);
+
+        $customer_orders = Order::where('customer_id', $order->customer_id)->get();
+        $order->customer->orders_count = $customer_orders->count();
+        $order->customer->lifetime_value = '$ ' . number_format($customer_orders->sum('total_amount'), 2);
+
         return Inertia::render('Admin/Orders/order', [
             'order' => $order,
         ]);
@@ -56,8 +63,7 @@ class OrderController extends Controller
 
     public function calculateTotalRevenue()
     {
-        // $total_revenue = Order::sum('total_amount');
-        $total_revenue = 1000000;
+        $total_revenue = OrderItem::sum('total');
 
         if ($total_revenue >= 1000000) {
             $formatted = round($total_revenue / 1000000, 1) . 'M';

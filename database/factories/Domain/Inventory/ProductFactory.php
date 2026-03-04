@@ -21,6 +21,7 @@ class ProductFactory extends Factory
             'stock' => $this->faker->numberBetween(0, 1000),
             'safety_stock' => $this->faker->numberBetween(0, 100),
             'description' => $this->faker->text,
+            'weight' => $this->faker->randomFloat(2, 1, 100),
             'enable_ai_forecast' => $this->faker->boolean,
             'enable_smart_reorder' => $this->faker->boolean,
             'image' => $this->faker->imageUrl,

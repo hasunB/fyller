@@ -34,12 +34,16 @@ const OrderStatusBadge: React.FC<OrderStatusBadgeProps> = ({ status, type }) => 
         'Delivered': CheckCircle2
     };
 
-    const Icon = Icons[status] || Clock;
+    const formattedStatus = status
+        ? status.charAt(0).toUpperCase() + status.slice(1).toLowerCase()
+        : 'Unknown';
+
+    const Icon = Icons[formattedStatus] || Clock;
 
     return (
-        <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium border ${styles[status]} flex items-center gap-1.5 w-fit`}>
+        <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium border ${styles[formattedStatus] || 'bg-gray-500/10 text-gray-400 border-gray-500/20'} flex items-center gap-1.5 w-fit`}>
             <Icon className="w-3 h-3" />
-            {status}
+            {formattedStatus}
         </span>
     );
 };
