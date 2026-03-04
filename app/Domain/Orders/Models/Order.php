@@ -20,11 +20,10 @@ class Order extends Model
         'order_number',
         'customer_id',
         'order_date',
-        'total_amount',
         'status',
     ];
 
-    protected $appends = ['last_sync', 'ai_priority', 'total_amount'];
+    protected $appends = ['last_sync', 'ai_priority', 'total_amount', 'shipping_amount', 'tax_amount', 'subtotal_amount'];
 
     // relations
     public function customer()
@@ -83,6 +82,31 @@ class Order extends Model
                 // Sums up the 'total' column from the related orderItems
                 return $this->order_items()->sum('total');
             }
+        );
+    }
+
+    protected function shippingAmount(): Attribute
+    {
+        return Attribute::make(
+            get: fn() => match (true) {
+                $this->channel_type->name == 'Web' => 10.00,
+                $this->channel_type->name == 'Mobile' => 10.00,
+                default => 0.00,
+            }
+        );
+    }
+
+    protected function taxAmount(): Attribute
+    {
+        return Attribute::make(
+            get: fn() => $this->order_items()->sum('total') * 0.005
+        );
+    }
+
+    protected function subtotalAmount(): Attribute
+    {
+        return Attribute::make(
+            get: fn() => $this->order_items()->sum('total') + $this->shipping_amount + $this->tax_amount
         );
     }
 }

@@ -1,44 +1,45 @@
 import React, { useState } from 'react';
 import Layout from "@/Components/Admin/Layouts/DashboardLayout";
 import { motion } from 'framer-motion';
-import {
-    Search,
-    Filter,
-    DollarSign,
-    CreditCard,
-    PieChart,
-    AlertOctagon,
-    FileText,
-    MoreHorizontal,
-    CheckCircle2
-} from 'lucide-react';
+import { Search, Filter, DollarSign, CreditCard, PieChart, AlertOctagon, FileText, MoreHorizontal, CheckCircle2 } from 'lucide-react';
 import CategoryBadge from '@/Components/Admin/UI/ExpenseCategoryBadge';
 import StatusBadge from '@/Components/Admin/UI/ExpenseStatusBadge';
 import KPICard from '@/Components/Admin/UI/ExpenseKPICard';
 import AdminPanelHeader from '@/Components/Admin/UI/AdminPanelHeader';
 
 // --- Types ---
-interface Expense {
-    id: string;
-    merchant: string;
-    category: 'Infrastructure' | 'Marketing' | 'Operations' | 'Software' | 'Travel';
-    amount: string;
-    date: string;
-    status: 'Approved' | 'Pending' | 'Flagged';
-    receipt: boolean;
-    aiInsight?: string; // Optional AI note
+interface Props {
+    expenses: {
+        data: Expense[];
+        next_page_url: string | null;
+        prev_page_url: string | null;
+        per_page: number;
+        path: string;
+    };
+    total_expenses: number;
+    total_expenses_this_month: string;
+    total_software_expenses: string;
+    projected_expenses: string;
 }
 
-// --- Mock Data ---
-const expenses: Expense[] = [
-    { id: "EXP-001", merchant: "AWS Cloud Services", category: "Infrastructure", amount: "$2,450.00", date: "Today, 10:00 AM", status: 'Flagged', receipt: true, aiInsight: "Unusual spike (+15% vs avg)" },
-    { id: "EXP-002", merchant: "Google Ads", category: "Marketing", amount: "$1,200.00", date: "Yesterday", status: 'Approved', receipt: true },
-    { id: "EXP-003", merchant: "Uber Business", category: "Travel", amount: "$45.50", date: "Oct 24, 2025", status: 'Pending', receipt: false },
-    { id: "EXP-004", merchant: "Slack Technologies", category: "Software", amount: "$850.00", date: "Oct 22, 2025", status: 'Approved', receipt: true },
-    { id: "EXP-005", merchant: "WeWork (Rent)", category: "Operations", amount: "$4,500.00", date: "Oct 01, 2025", status: 'Approved', receipt: true },
-];
+interface Expense {
+    id: string;
+    expense_number: string;
+    name: string;
+    category: {
+        name: string;
+    };
+    amount: string;
+    date: string;
+    expense_status: {
+        name: string;
+    };
+    receipt: string;
+    aiInsight?: string; // Optional AI note
+    last_sync: string;
+}
 
-export default function ExpensesIndex() {
+export default function ExpensesIndex({ expenses, total_expenses, total_expenses_this_month, total_software_expenses, projected_expenses }: Props) {
     return (
         <Layout title="Expense Management">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
@@ -59,14 +60,14 @@ export default function ExpensesIndex() {
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <KPICard
                         title="Total Spend (Oct)"
-                        value="$42,590"
+                        value={`$` + total_expenses.toString()}
                         icon={DollarSign}
                         trend="up"
                         subtext="vs $38k Budget Cap"
                     />
                     <KPICard
                         title="Software Subscriptions"
-                        value="$8,200"
+                        value={`$` + total_software_expenses.toString()}
                         icon={CreditCard}
                         trend="down"
                         subtext="3 unused seats detected"
@@ -136,27 +137,27 @@ export default function ExpensesIndex() {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-800">
-                                    {expenses.map((expense) => (
+                                    {expenses.data.map((expense) => (
                                         <motion.tr
                                             key={expense.id}
                                             initial={{ opacity: 0 }}
                                             animate={{ opacity: 1 }}
-                                            className={`hover:bg-gray-800/50 transition-colors group ${expense.status === 'Flagged' ? 'bg-red-500/5' : ''}`}
+                                            className={`hover:bg-gray-800/50 transition-colors group ${expense.expense_status.name === 'Flagged' ? 'bg-red-500/5' : ''}`}
                                         >
                                             <td className="px-6 py-4">
                                                 <div className="flex flex-col">
-                                                    <span className="text-sm font-medium text-white">{expense.merchant}</span>
-                                                    <span className="text-xs text-gray-500">{expense.id}</span>
+                                                    <span className="text-sm font-medium text-white">{expense.name}</span>
+                                                    <span className="text-xs text-gray-500">{expense.expense_number}</span>
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4">
-                                                <CategoryBadge category={expense.category} />
+                                                <CategoryBadge category={expense.category.name} />
                                             </td>
                                             <td className="px-6 py-4 text-xs text-gray-400">
-                                                {expense.date}
+                                                {expense.last_sync}
                                             </td>
                                             <td className="px-6 py-4">
-                                                <StatusBadge status={expense.status} insight={expense.aiInsight} />
+                                                <StatusBadge status={expense.expense_status.name} insight={expense.aiInsight} />
                                             </td>
                                             <td className="px-6 py-4 text-sm font-mono text-white text-right">
                                                 {expense.amount}
@@ -176,6 +177,9 @@ export default function ExpensesIndex() {
                                         </motion.tr>
                                     ))}
                                 </tbody>
+                                {/* <pre className="text-xs text-green-400 font-mono">
+                                    {JSON.stringify(expenses, null, 2)}
+                                </pre> */}
                             </table>
                         </div>
 

@@ -8,6 +8,7 @@ use App\Domain\Inventory\Models\Category;
 use App\Domain\Inventory\Models\Product;
 use App\Domain\Orders\Models\Order;
 use App\Domain\Orders\Models\OrderItem;
+use App\Domain\Expenses\Models\Expense;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
@@ -97,5 +98,40 @@ class DatabaseSeeder extends Seeder
         Customer::factory(10)->create();
         Order::factory(30)->create();
         OrderItem::factory(50)->create();
+
+        $expenseCategories = [
+            ['name' => 'Rent'],
+            ['name' => 'Utilities'],
+            ['name' => 'Supplies'],
+            ['name' => 'Marketing'],
+            ['name' => 'Shipping'],
+            ['name' => 'Salary'],
+            ['name' => 'Travel'],
+            ['name' => 'Software'],
+            ['name' => 'Infrastructure'],
+            ['name' => 'Other'],
+        ];
+        foreach ($expenseCategories as $category) {
+            DB::table('expense_categories')->insert(array_merge($category, ['created_at' => now(), 'updated_at' => now()]));
+        }
+
+        $expenseStatuses = [
+            ['name' => 'Pending'],
+            ['name' => 'Paid'],
+            ['name' => 'Failed'],
+            ['name' => 'Refunded'],
+            ['name' => 'Cancelled'],
+            ['name' => 'Review Needed'],
+            ['name' => 'Approved'],
+            ['name' => 'Rejected'],
+            ['name' => 'On Hold'],
+            ['name' => 'Overdue'],
+            ['name' => 'Unpaid'],
+        ];
+        foreach ($expenseStatuses as $status) {
+            DB::table('expense_status')->insert(array_merge($status, ['created_at' => now(), 'updated_at' => now()]));
+        }
+
+        Expense::factory(10)->create();
     }
 }

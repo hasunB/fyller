@@ -27,6 +27,7 @@ return new class extends Migration
             $table->integer('stock');
             $table->integer('safety_stock');
             $table->text('description');
+            $table->decimal('weight', 10, 2);
             $table->boolean('enable_ai_forecast')->default(true);
             $table->boolean('enable_smart_reorder')->default(true);
             $table->string('image')->nullable();

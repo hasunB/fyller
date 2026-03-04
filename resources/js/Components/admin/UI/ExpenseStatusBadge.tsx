@@ -2,11 +2,11 @@ import React from 'react';
 import { AlertOctagon } from 'lucide-react';
 
 interface Expense {
-    status: 'Approved' | 'Pending' | 'Flagged';
+    status: string;
     insight?: string;
 }
 
-const StatusBadge = ({ status, insight }: { status: Expense['status'], insight?: string }) => {
+export default function StatusBadge({ status, insight }: { status: Expense['status'], insight?: string }) {
     if (status === 'Flagged') {
         return (
             <div className="flex flex-col items-start gap-1">
@@ -22,5 +22,3 @@ const StatusBadge = ({ status, insight }: { status: Expense['status'], insight?:
     }
     return <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Approved</span>;
 };
-
-export default StatusBadge;
