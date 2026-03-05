@@ -16,4 +16,9 @@ class ExpenseStatus extends Model
     {
         return $this->hasMany(Expense::class);
     }
+
+    public function transactions()
+    {
+        return $this->hasMany(ExpenseTransaction::class);
+    }
 }
