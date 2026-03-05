@@ -26,6 +26,16 @@ class Expense extends Model
         return $this->belongsTo(ExpenseStatus::class);
     }
 
+    public function recurring_rule()
+    {
+        return $this->hasOne(ExpenseRecurringRule::class);
+    }
+
+    public function expense_transactions()
+    {
+        return $this->hasMany(ExpenseTransaction::class);
+    }
+
     protected function lastSync(): Attribute
     {
         return Attribute::make(

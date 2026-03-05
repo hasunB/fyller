@@ -9,6 +9,8 @@ use App\Domain\Inventory\Models\Product;
 use App\Domain\Orders\Models\Order;
 use App\Domain\Orders\Models\OrderItem;
 use App\Domain\Expenses\Models\Expense;
+use App\Domain\Expenses\Models\ExpenseRecurringRule;
+use App\Domain\Expenses\Models\ExpenseTransaction;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
@@ -133,5 +135,7 @@ class DatabaseSeeder extends Seeder
         }
 
         Expense::factory(10)->create();
+        ExpenseRecurringRule::factory(10)->create();
+        ExpenseTransaction::factory(10)->create();
     }
 }

@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import Layout from "@/Components/Admin/Layouts/DashboardLayout";
 import { motion } from 'framer-motion';
-import { Search, Filter, DollarSign, CreditCard, PieChart, AlertOctagon, FileText, MoreHorizontal, CheckCircle2 } from 'lucide-react';
+import { Search, Filter, DollarSign, CreditCard, PieChart, AlertOctagon, FileText, Eye, CheckCircle2 } from 'lucide-react';
 import CategoryBadge from '@/Components/Admin/UI/ExpenseCategoryBadge';
 import StatusBadge from '@/Components/Admin/UI/ExpenseStatusBadge';
 import KPICard from '@/Components/Admin/UI/ExpenseKPICard';
 import AdminPanelHeader from '@/Components/Admin/UI/AdminPanelHeader';
+import CursorPagination from '@/Components/Admin/UI/CursorPagination';
+import { Link } from '@inertiajs/react';
 
 // --- Types ---
 interface Props {
@@ -16,10 +18,9 @@ interface Props {
         per_page: number;
         path: string;
     };
-    total_expenses: number;
-    total_expenses_this_month: string;
-    total_software_expenses: string;
-    projected_expenses: string;
+    total_expenses_this_month: number;
+    total_software_expenses: number;
+    projected_expenses: number;
 }
 
 interface Expense {
@@ -34,12 +35,18 @@ interface Expense {
     expense_status: {
         name: string;
     };
+    recurring_rule: {
+        frequency: string;
+    };
+    transactions: {
+        amount: string;
+    }[];
     receipt: string;
     aiInsight?: string; // Optional AI note
     last_sync: string;
 }
 
-export default function ExpensesIndex({ expenses, total_expenses, total_expenses_this_month, total_software_expenses, projected_expenses }: Props) {
+export default function ExpensesIndex({ expenses, total_expenses_this_month, total_software_expenses, projected_expenses }: Props) {
     return (
         <Layout title="Expense Management">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
@@ -60,21 +67,21 @@ export default function ExpensesIndex({ expenses, total_expenses, total_expenses
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <KPICard
                         title="Total Spend (Oct)"
-                        value={`$` + total_expenses.toString()}
+                        value={`$` + total_expenses_this_month.toLocaleString()}
                         icon={DollarSign}
                         trend="up"
                         subtext="vs $38k Budget Cap"
                     />
                     <KPICard
                         title="Software Subscriptions"
-                        value={`$` + total_software_expenses.toString()}
+                        value={`$` + total_software_expenses.toLocaleString()}
                         icon={CreditCard}
                         trend="down"
                         subtext="3 unused seats detected"
                     />
                     <KPICard
                         title="Projected Burn"
-                        value="$55k"
+                        value={`$` + projected_expenses}
                         icon={PieChart}
                         subtext="Based on current velocity"
                     />
@@ -130,10 +137,11 @@ export default function ExpensesIndex({ expenses, total_expenses, total_expenses
                                         <th className="px-6 py-4 font-medium">Merchant</th>
                                         <th className="px-6 py-4 font-medium">Category</th>
                                         <th className="px-6 py-4 font-medium">Date</th>
-                                        <th className="px-6 py-4 font-medium">Status & AI Audit</th>
+                                        <th className="px-6 py-4 font-medium text-center">Status & AI Audit</th>
                                         <th className="px-6 py-4 font-medium text-right">Amount</th>
+                                        <th className="px-6 py-4 font-medium text-right">Recurring</th>
                                         <th className="px-6 py-4 font-medium text-center">Receipt</th>
-                                        <th className="px-6 py-4"></th>
+                                        <th className="px-6 py-4 font-medium text-center">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-800">
@@ -156,11 +164,19 @@ export default function ExpensesIndex({ expenses, total_expenses, total_expenses
                                             <td className="px-6 py-4 text-xs text-gray-400">
                                                 {expense.last_sync}
                                             </td>
-                                            <td className="px-6 py-4">
+                                            <td className="px-6 py-4 text-center">
                                                 <StatusBadge status={expense.expense_status.name} insight={expense.aiInsight} />
                                             </td>
                                             <td className="px-6 py-4 text-sm font-mono text-white text-right">
-                                                {expense.amount}
+                                                ${expense.amount}
+                                            </td>
+                                            <td className="px-6 py-4 text-center">
+                                                <div className="flex justify-center items-center">
+                                                    <span className="relative flex h-3 w-3">
+                                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                                                        <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                                                    </span>
+                                                </div>
                                             </td>
                                             <td className="px-6 py-4 text-center">
                                                 {expense.receipt ? (
@@ -169,24 +185,19 @@ export default function ExpensesIndex({ expenses, total_expenses, total_expenses
                                                     <span className="text-[10px] text-amber-500 bg-amber-500/10 px-1.5 py-0.5 rounded">Missing</span>
                                                 )}
                                             </td>
-                                            <td className="px-6 py-4 text-right">
-                                                <button className="text-gray-500 hover:text-white p-2 rounded-lg hover:bg-gray-800 transition-colors">
-                                                    <MoreHorizontal className="w-4 h-4" />
-                                                </button>
+                                            <td className="px-6 py-5 text-center">
+                                                <Link href={`/expenses/${expense.id}`} className="inline-flex items-center justify-center text-gray-500 hover:text-white p-2 rounded-lg hover:bg-gray-800 transition-colors">
+                                                    <Eye className="w-4 h-4" />
+                                                </Link>
                                             </td>
                                         </motion.tr>
                                     ))}
                                 </tbody>
-                                {/* <pre className="text-xs text-green-400 font-mono">
-                                    {JSON.stringify(expenses, null, 2)}
-                                </pre> */}
                             </table>
                         </div>
 
-                        {/* Footer */}
-                        <div className="px-6 py-4 border-t border-gray-800 flex justify-center bg-gray-900/30">
-                            <button className="text-sm text-indigo-400 hover:text-indigo-300 transition-colors">View All Expenses</button>
-                        </div>
+                        {/* Pagination */}
+                        <CursorPagination data={expenses} />
                     </div>
 
                 </div>

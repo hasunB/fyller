@@ -190,14 +190,14 @@ export default function OrdersIndex({ orders, total_orders, total_pending_orders
                                     <th className="px-6 py-4 font-medium">Fulfillment</th>
                                     <th className="px-6 py-4 font-medium">AI Priority</th>
                                     <th className="px-6 py-4 font-medium text-right">Total</th>
-                                    <th className="px-6 py-4 font-medium text-right">Actions</th>
+                                    <th className="px-6 py-4 font-medium text-center">Actions</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-800">
 
                                 {orderList.map((order) => (
                                     <tr key={order.id} className="hover:bg-gray-800/50 transition-colors group">
-                                        <td className="px-6 py-4">
+                                        <td className="px-6 py-5">
                                             <div className="flex items-center gap-2">
                                                 <OrderChannelIcon channel={order.channel_type.name} />
                                                 <span className="text-sm font-semibold text-white group-hover:text-indigo-400 transition-colors">
@@ -205,10 +205,10 @@ export default function OrdersIndex({ orders, total_orders, total_pending_orders
                                                 </span>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4 text-xs text-gray-400">
+                                        <td className="px-6 py-5 text-xs text-gray-400">
                                             {order.last_sync}
                                         </td>
-                                        <td className="px-6 py-4">
+                                        <td className="px-6 py-5">
                                             <div className="flex items-center gap-3">
                                                 <div className="flex flex-col">
                                                     <span className="text-sm text-gray-200">{order.customer.name}</span>
@@ -216,20 +216,20 @@ export default function OrdersIndex({ orders, total_orders, total_pending_orders
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4">
+                                        <td className="px-6 py-5">
                                             <OrderStatusBadge status={order.payment_status.name} type="payment" />
                                         </td>
-                                        <td className="px-6 py-4">
+                                        <td className="px-6 py-5">
                                             <OrderStatusBadge status={order.fulfillment_status.name} type="fulfillment" />
                                         </td>
-                                        <td className="px-6 py-4">
+                                        <td className="px-6 py-5">
                                             <AiPriorityTag priority={order.ai_priority} />
                                         </td>
-                                        <td className="px-6 py-4 text-sm font-mono text-white text-right">${Number(order.subtotal_amount).toFixed(2)}
+                                        <td className="px-6 py-5 text-sm font-mono text-white text-right">${Number(order.subtotal_amount).toFixed(2)}
                                             <span className="text-gray-600 text-xs block">{order.order_items.length} items</span>
                                         </td>
-                                        <td className="px-6 py-4 text-right">
-                                            <Link href={`/orders/${order.id}`} className="text-gray-500 hover:text-white p-2 rounded-lg hover:bg-gray-800 transition-colors">
+                                        <td className="px-6 py-5 text-center">
+                                            <Link href={`/orders/${order.id}`} className="inline-flex items-center justify-center text-gray-500 hover:text-white p-2 rounded-lg hover:bg-gray-800 transition-colors">
                                                 <Eye className="w-4 h-4" />
                                             </Link>
                                         </td>
