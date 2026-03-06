@@ -127,15 +127,31 @@ class DatabaseSeeder extends Seeder
             ['name' => 'Approved'],
             ['name' => 'Rejected'],
             ['name' => 'On Hold'],
-            ['name' => 'Overdue'],
             ['name' => 'Unpaid'],
+            ['name' => 'AI Flagged'],
         ];
         foreach ($expenseStatuses as $status) {
             DB::table('expense_status')->insert(array_merge($status, ['created_at' => now(), 'updated_at' => now()]));
         }
 
+        $merchants = [
+            ['name' => 'Amazon'],
+            ['name' => 'eBay'],
+            ['name' => 'AliExpress'],
+            ['name' => 'Etsy'],
+            ['name' => 'Walmart'],
+            ['name' => 'Target'],
+            ['name' => 'Best Buy'],
+            ['name' => 'Home Depot'],
+            ['name' => 'Lowe\'s'],
+            ['name' => 'Other'],
+        ];
+        foreach ($merchants as $merchant) {
+            DB::table('merchants')->insert(array_merge($merchant, ['created_at' => now(), 'updated_at' => now()]));
+        }
+
         Expense::factory(10)->create();
         ExpenseRecurringRule::factory(10)->create();
-        ExpenseTransaction::factory(10)->create();
+        ExpenseTransaction::factory(100)->create();
     }
 }

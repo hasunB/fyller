@@ -17,6 +17,12 @@ return new class extends Migration
             $table->timestamps();
         });
 
+        Schema::create('merchants', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->timestamps();
+        });
+
         Schema::create('expense_status', function (Blueprint $table) {
             $table->id();
             $table->string('name');
@@ -29,6 +35,7 @@ return new class extends Migration
             $table->string('name');
             $table->text('description')->nullable();
             $table->foreignId('category_id')->constrained('expense_categories')->cascadeOnDelete();
+            $table->foreignId('merchant_id')->constrained('merchants')->cascadeOnDelete();
             $table->foreignId('expense_status_id')->constrained('expense_status')->cascadeOnDelete();
             $table->date('expire_date')->nullable();
             $table->timestamps();
@@ -68,5 +75,6 @@ return new class extends Migration
         Schema::dropIfExists('expense_status');
         Schema::dropIfExists('expense_recurring_rules');
         Schema::dropIfExists('expense_transactions');
+        Schema::dropIfExists('merchants');
     }
 };

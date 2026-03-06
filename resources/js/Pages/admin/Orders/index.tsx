@@ -150,7 +150,7 @@ export default function OrdersIndex({ orders, total_orders, total_pending_orders
                     <MiniStat title="Today's Orders" value={total_orders.toLocaleString()} icon={ShoppingBag} color="text-indigo-500" />
                     <MiniStat title="Pending Processing" value={total_pending_orders.toLocaleString()} icon={Clock} color="text-amber-500" />
                     <MiniStat title="Returns Rate" value={return_rate} icon={ArrowUpRight} color="text-red-500" />
-                    <MiniStat title="Total Revenue" value={total_revenue.toLocaleString()} icon={CheckCircle2} color="text-green-500" />
+                    <MiniStat title="Total Revenue" value={`$` + total_revenue.toLocaleString()} icon={CheckCircle2} color="text-green-500" />
                 </div>
 
                 {/* Filters & Search */}

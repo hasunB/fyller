@@ -21,6 +21,7 @@ interface Props {
     total_expenses_this_month: number;
     total_software_expenses: number;
     projected_expenses: number;
+    AI_flagged_count: number;
 }
 
 interface Expense {
@@ -35,18 +36,14 @@ interface Expense {
     expense_status: {
         name: string;
     };
-    recurring_rule: {
-        frequency: string;
-    };
-    transactions: {
-        amount: string;
-    }[];
-    receipt: string;
+    is_recurring: boolean;
+    receipt: boolean;
     aiInsight?: string; // Optional AI note
     last_sync: string;
+    subtotal_amount: number | string;
 }
 
-export default function ExpensesIndex({ expenses, total_expenses_this_month, total_software_expenses, projected_expenses }: Props) {
+export default function ExpensesIndex({ expenses, total_expenses_this_month, total_software_expenses, projected_expenses, AI_flagged_count }: Props) {
     return (
         <Layout title="Expense Management">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
@@ -81,7 +78,7 @@ export default function ExpensesIndex({ expenses, total_expenses_this_month, tot
                     />
                     <KPICard
                         title="Projected Burn"
-                        value={`$` + projected_expenses}
+                        value={`$` + projected_expenses.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         icon={PieChart}
                         subtext="Based on current velocity"
                     />
@@ -95,7 +92,7 @@ export default function ExpensesIndex({ expenses, total_expenses_this_month, tot
                             <span className="text-xs font-bold text-red-400 bg-red-500/10 px-2 py-1 rounded">Action Required</span>
                         </div>
                         <div className="relative z-10">
-                            <h3 className="text-2xl font-bold text-white mb-1">2 Flags</h3>
+                            <h3 className="text-2xl font-bold text-white mb-1">{AI_flagged_count} Flags</h3>
                             <p className="text-xs text-red-300">AI detected unusual patterns.</p>
                             <button className="text-[10px] text-white underline mt-2 hover:text-red-200">View Analysis</button>
                         </div>
@@ -168,15 +165,19 @@ export default function ExpensesIndex({ expenses, total_expenses_this_month, tot
                                                 <StatusBadge status={expense.expense_status.name} insight={expense.aiInsight} />
                                             </td>
                                             <td className="px-6 py-4 text-sm font-mono text-white text-right">
-                                                ${expense.amount}
+                                                ${expense.subtotal_amount}
                                             </td>
                                             <td className="px-6 py-4 text-center">
-                                                <div className="flex justify-center items-center">
-                                                    <span className="relative flex h-3 w-3">
-                                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                                                        <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
-                                                    </span>
-                                                </div>
+                                                {expense.is_recurring ? (
+                                                    <div className="flex justify-center items-center">
+                                                        <span className="relative flex h-3 w-3">
+                                                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                                                            <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                                                        </span>
+                                                    </div>
+                                                ) : (
+                                                    <div className="flex justify-center items-center">-</div>
+                                                )}
                                             </td>
                                             <td className="px-6 py-4 text-center">
                                                 {expense.receipt ? (

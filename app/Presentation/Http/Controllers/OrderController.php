@@ -56,7 +56,7 @@ class OrderController extends Controller
         $order->customer->orders_count = $customer_orders->count();
         $order->customer->lifetime_value = '$ ' . number_format($customer_orders->sum('total_amount'), 2);
 
-        return Inertia::render('Admin/Orders/order', [
+        return Inertia::render('Admin/Orders/view', [
             'order' => $order,
         ]);
     }

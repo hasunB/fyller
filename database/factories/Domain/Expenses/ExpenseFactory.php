@@ -16,7 +16,9 @@ class ExpenseFactory extends Factory
         return [
             'expense_number' => 'EXP-' . $this->faker->unique()->numberBetween(1000, 9999),
             'name' => $this->faker->words(3, true),
+            'description' => $this->faker->sentence(),
             'category_id' => Category::inRandomOrder()->first()?->id ?? Category::factory(),
+            'merchant_id' => $this->faker->numberBetween(1, 9),
             'expense_status_id' => $this->faker->numberBetween(1, 11),
         ];
     }

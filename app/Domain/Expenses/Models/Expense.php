@@ -14,11 +14,16 @@ class Expense extends Model
 
     protected $guarded = [];
 
-    protected $appends = ['last_sync'];
+    protected $appends = ['last_sync', 'subtotal_amount', 'is_recurring', 'receipt'];
 
     public function category()
     {
         return $this->belongsTo(Category::class);
+    }
+
+    public function merchant()
+    {
+        return $this->belongsTo(Merchant::class);
     }
 
     public function expense_status()
@@ -40,6 +45,27 @@ class Expense extends Model
     {
         return Attribute::make(
             get: fn() => $this->updated_at->diffForHumans()
+        );
+    }
+
+    protected function subtotalAmount(): Attribute
+    {
+        return Attribute::make(
+            get: fn() => $this->expense_transactions()->sum('amount')
+        );
+    }
+
+    protected function isRecurring(): Attribute
+    {
+        return Attribute::make(
+            get: fn() => $this->recurring_rule()->exists()
+        );
+    }
+
+    protected function receipt(): Attribute
+    {
+        return Attribute::make(
+            get: fn() => $this->expense_transactions()->whereNotNull('receipt')->exists()
         );
     }
 }
