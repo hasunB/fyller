@@ -26,18 +26,50 @@ class ExpenseController
             ->get()
             ->sum('expense_transactions_sum_amount');
 
-        $projected_expenses = 1000000;
+        $AI_flagged_count = Expense::where('expense_status_id', 11)->count();
+
+        $projected_expenses = $this->calculateProjectedExpenses();
 
         return Inertia::render('Admin/Expenses/index', [
             'expenses' => $expenses,
             'total_expenses_this_month' => $total_expenses_this_month,
             'total_software_expenses' => $total_software_expenses,
             'projected_expenses' => $projected_expenses,
+            'AI_flagged_count' => $AI_flagged_count,
         ]);
     }
 
     public function create()
     {
         return Inertia::render('Admin/Expenses/create');
+    }
+
+    public function show(Expense $expense)
+    {
+        $expense->load('category', 'merchant', 'expense_status', 'recurring_rule', 'expense_transactions');
+
+        return Inertia::render('Admin/Expenses/view', [
+            'expense' => $expense,
+        ]);
+    }
+
+    //logics
+    public function calculateProjectedExpenses()
+    {
+        $startDate = now()->startOfMonth();
+        $today = now();
+
+        $expenses = Expense::whereBetween('created_at', [$startDate, $today->endOfDay()])
+            ->withSum('expense_transactions', 'amount')
+            ->get();
+
+        $totalExpensesSoFar = $expenses->sum('expense_transactions_sum_amount');
+        $daysPassed = $today->day;
+        $daysInMonth = $today->daysInMonth;
+
+        $averagePerDay = $daysPassed > 0 ? $totalExpensesSoFar / $daysPassed : 0;
+        $projectedTotal = $averagePerDay * $daysInMonth;
+
+        return $projectedTotal;
     }
 }

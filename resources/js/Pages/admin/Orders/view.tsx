@@ -53,39 +53,6 @@ interface OrderShowProps {
 
 // --- Mock Data for a Single Order ---
 const Order = {
-    id: "#ORD-7718",
-    date: "Oct 24, 2026 at 1:42 PM",
-    channel: 'Web',
-    paymentStatus: 'Pending',
-    fulfillmentStatus: 'Unfulfilled',
-    aiPriority: 'Fraud Risk',
-    customer: {
-        name: "Suspicious User",
-        email: "temp123@guerrillamail.com",
-        phone: "+1 (555) 019-2831",
-        avatar: "SU",
-        ordersCount: 1,
-        lifetimeValue: "$0.00",
-        accountCreated: "Today"
-    },
-    shippingAddress: {
-        line1: "123 Fraudulent Way",
-        city: "Miami",
-        state: "FL",
-        zip: "33101",
-        country: "United States"
-    },
-    items: [
-        { id: 1, name: "4K Ultra-Wide Monitor", sku: "SCR-221", price: 599.00, quantity: 4, total: 2396.00, image: "🖥️" },
-        { id: 2, name: "Neural Noise-Cancelling Headphones", sku: "AUD-001", price: 299.00, quantity: 2, total: 598.00, image: "🎧" },
-        { id: 3, name: "Mechanical Keyboard", sku: "KEY-004", price: 120.00, quantity: 3, total: 360.00, image: "⌨️" }
-    ],
-    financials: {
-        subtotal: 3354.00,
-        tax: 0.00,
-        shipping: 46.00,
-        total: 3400.00
-    },
     timeline: [
         { id: 1, action: "Order Placed", date: "Oct 24, 1:42 PM", desc: "Order received via Web Storefront.", icon: Package, status: "completed" },
         { id: 2, action: "AI Fraud Scan", date: "Oct 24, 1:43 PM", desc: "System flagged transaction as High Risk.", icon: ShieldAlert, status: "alert" },
