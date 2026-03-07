@@ -26,11 +26,6 @@ class Expense extends Model
         return $this->belongsTo(Merchant::class);
     }
 
-    public function expense_status()
-    {
-        return $this->belongsTo(ExpenseStatus::class);
-    }
-
     public function recurring_rule()
     {
         return $this->hasOne(ExpenseRecurringRule::class);

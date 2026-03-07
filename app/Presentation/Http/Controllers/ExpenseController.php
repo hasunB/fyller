@@ -10,7 +10,7 @@ class ExpenseController
 {
     public function index()
     {
-        $expenses = Expense::with('category', 'expense_status', 'recurring_rule', 'expense_transactions')
+        $expenses = Expense::with('category', 'recurring_rule', 'expense_transactions.expense_status')
             ->orderBy('created_at', 'desc')
             ->cursorPaginate(10)
             ->withQueryString();
@@ -26,7 +26,9 @@ class ExpenseController
             ->get()
             ->sum('expense_transactions_sum_amount');
 
-        $AI_flagged_count = Expense::where('expense_status_id', 11)->count();
+        $AI_flagged_count = Expense::whereHas('expense_transactions', function ($query) {
+            $query->where('expense_status_id', 11);
+        })->count();
 
         $projected_expenses = $this->calculateProjectedExpenses();
 
@@ -46,7 +48,7 @@ class ExpenseController
 
     public function show(Expense $expense)
     {
-        $expense->load('category', 'merchant', 'expense_status', 'recurring_rule', 'expense_transactions');
+        $expense->load('category', 'merchant', 'recurring_rule', 'expense_transactions.expense_status');
 
         return Inertia::render('Admin/Expenses/view', [
             'expense' => $expense,
