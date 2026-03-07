@@ -19,7 +19,6 @@ class ExpenseFactory extends Factory
             'description' => $this->faker->sentence(),
             'category_id' => Category::inRandomOrder()->first()?->id ?? Category::factory(),
             'merchant_id' => $this->faker->numberBetween(1, 9),
-            'expense_status_id' => $this->faker->numberBetween(1, 11),
         ];
     }
 }

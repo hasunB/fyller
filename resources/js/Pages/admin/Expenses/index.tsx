@@ -33,14 +33,17 @@ interface Expense {
     };
     amount: string;
     date: string;
-    expense_status: {
-        name: string;
-    };
     is_recurring: boolean;
     receipt: boolean;
     aiInsight?: string; // Optional AI note
     last_sync: string;
     subtotal_amount: number | string;
+    expense_transactions: {
+        id: string;
+        expense_status: {
+            name: string;
+        } | null;
+    }[];
 }
 
 export default function ExpensesIndex({ expenses, total_expenses_this_month, total_software_expenses, projected_expenses, AI_flagged_count }: Props) {
@@ -147,7 +150,7 @@ export default function ExpensesIndex({ expenses, total_expenses_this_month, tot
                                             key={expense.id}
                                             initial={{ opacity: 0 }}
                                             animate={{ opacity: 1 }}
-                                            className={`hover:bg-gray-800/50 transition-colors group ${expense.expense_status.name === 'Flagged' ? 'bg-red-500/5' : ''}`}
+                                            className={`hover:bg-gray-800/50 transition-colors group ${expense.expense_transactions?.[0]?.expense_status?.name === 'Flagged' ? 'bg-red-500/5' : ''}`}
                                         >
                                             <td className="px-6 py-4">
                                                 <div className="flex flex-col">
@@ -162,7 +165,7 @@ export default function ExpensesIndex({ expenses, total_expenses_this_month, tot
                                                 {expense.last_sync}
                                             </td>
                                             <td className="px-6 py-4 text-center">
-                                                <StatusBadge status={expense.expense_status.name} insight={expense.aiInsight} />
+                                                <StatusBadge status={expense.expense_transactions?.[0]?.expense_status?.name || 'Unknown'} insight={expense.aiInsight} />
                                             </td>
                                             <td className="px-6 py-4 text-sm font-mono text-white text-right">
                                                 ${expense.subtotal_amount}

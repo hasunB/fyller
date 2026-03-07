@@ -14,6 +14,7 @@ class ExpenseTransactionFactory extends Factory
     public function definition(): array
     {
         return [
+            'transaction_number' => 'TRX-' . $this->faker->unique()->numberBetween(1000, 9999),
             'expense_id' => Expense::factory(),
             'amount' => $this->faker->randomFloat(2, 10, 500),
             'transaction_date' => $this->faker->date(),

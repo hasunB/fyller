@@ -36,7 +36,6 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->foreignId('category_id')->constrained('expense_categories')->cascadeOnDelete();
             $table->foreignId('merchant_id')->constrained('merchants')->cascadeOnDelete();
-            $table->foreignId('expense_status_id')->constrained('expense_status')->cascadeOnDelete();
             $table->date('expire_date')->nullable();
             $table->timestamps();
         });
@@ -55,6 +54,7 @@ return new class extends Migration
 
         Schema::create('expense_transactions', function (Blueprint $table) {
             $table->id();
+            $table->string('transaction_number');
             $table->foreignId('expense_id')->constrained('expenses')->cascadeOnDelete();
             $table->decimal('amount', 10, 2);
             $table->date('transaction_date');

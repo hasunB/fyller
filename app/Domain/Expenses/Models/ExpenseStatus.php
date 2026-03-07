@@ -12,12 +12,7 @@ class ExpenseStatus extends Model
 
     protected $table = 'expense_status';
 
-    public function expenses()
-    {
-        return $this->hasMany(Expense::class);
-    }
-
-    public function transactions()
+    public function expense_transactions()
     {
         return $this->hasMany(ExpenseTransaction::class);
     }

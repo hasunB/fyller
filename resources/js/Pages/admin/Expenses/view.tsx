@@ -34,10 +34,23 @@ interface ExpenseShowProps {
             name: string;
         };
         created_at: string;
-        expense_status: {
-            name: string;
-        };
         is_recurring: boolean;
+        recurring_rule: {
+            frequency: string;
+            interval: number;
+            start_date: string;
+            end_date: string;
+        };
+        expense_transactions: {
+            id: string;
+            transaction_number: string;
+            amount: string;
+            transaction_date: string;
+            receipt: string | null;
+            expense_status: {
+                name: string;
+            };
+        }[];
         receipt_url: string | null;
         subtotal_amount: number;
         tax_amount: number;
@@ -49,7 +62,7 @@ interface ExpenseShowProps {
         created_by: string;
     };
 }
-
+// --- TODO: add sections for predicted next payment
 // --- Mock Data (Remove this if passing actual props from Laravel controller) ---
 const mockExpense: ExpenseShowProps['expense'] = {
     id: "9a8b7c6d",
@@ -58,7 +71,6 @@ const mockExpense: ExpenseShowProps['expense'] = {
     merchant: { name: "Amazon Web Services" },
     category: { name: "Infrastructure" },
     created_at: "Oct 24, 2026",
-    expense_status: { name: "Flagged" },
     is_recurring: true,
     receipt_url: "#",
     subtotal_amount: 2200.00,
@@ -76,12 +88,6 @@ const mockExpense: ExpenseShowProps['expense'] = {
 
 export default function ExpenseShow({ expense }: ExpenseShowProps) {
 
-    const dummyTransactions = [
-        { id: "TRX-8832", amount: "$1,200.00", date: "Oct 24, 2026", receipt: true, status: "Cleared" },
-        { id: "TRX-8833", amount: "$45.50", date: "Oct 22, 2026", receipt: false, status: "Pending" },
-        { id: "TRX-8834", amount: "$2,450.00", date: "Oct 15, 2026", receipt: true, status: "Flagged" },
-    ];
-
     return (
         <Layout title={expense.expense_number}>
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
@@ -95,8 +101,16 @@ export default function ExpenseShow({ expense }: ExpenseShowProps) {
                         <div>
                             <div className="flex items-center gap-3">
                                 <h1 className="text-2xl font-bold text-white">#{expense.expense_number}</h1>
-                                <StatusBadge status={expense.expense_status.name} />
+                                <StatusBadge status={expense.expense_transactions?.[0]?.expense_status?.name || 'Unknown'} />
                                 <CategoryBadge category={expense.category.name} />
+                                {expense.is_recurring ? (
+                                    <div className="flex justify-center items-center">
+                                        <span className="relative flex h-3 w-3">
+                                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                                            <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                                        </span>
+                                    </div>
+                                ) : null}
                             </div>
                             <p className="text-gray-400 text-sm mt-1">{expense.merchant.name} • {new Date(expense.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} at {new Date(expense.created_at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}</p>
                         </div>
@@ -108,7 +122,7 @@ export default function ExpenseShow({ expense }: ExpenseShowProps) {
                         <button className="flex items-center gap-2 px-4 py-2 bg-gray-900 border border-gray-800 text-gray-300 hover:text-white rounded-lg transition-colors text-sm">
                             <MoreHorizontal className="w-4 h-4" />
                         </button>
-                        {expense.expense_status.name === 'Flagged' || expense.expense_status.name === 'Pending' ? (
+                        {expense.expense_transactions?.[0]?.expense_status?.name === 'Flagged' || expense.expense_transactions?.[0]?.expense_status?.name === 'Pending' ? (
                             <button className="flex items-center gap-2 px-6 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg shadow-lg shadow-emerald-500/20 transition-all text-sm font-medium">
                                 Approve Expense
                             </button>
@@ -182,17 +196,17 @@ export default function ExpenseShow({ expense }: ExpenseShowProps) {
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-gray-800">
-                                        {dummyTransactions.map((transaction) => (
+                                        {expense.expense_transactions.map((transaction) => (
                                             <tr key={transaction.id} className="hover:bg-gray-800/50 transition-colors group">
 
                                                 {/* ID Column */}
                                                 <td className="px-6 ps-2 py-4 text-sm font-mono text-gray-400 group-hover:text-indigo-400 transition-colors">
-                                                    {transaction.id}
+                                                    {transaction.transaction_number}
                                                 </td>
 
                                                 {/* Date Column */}
                                                 <td className="px-6 py-4 text-sm text-gray-300">
-                                                    {transaction.date}
+                                                    {transaction.transaction_date}
                                                 </td>
 
                                                 {/* Receipt Column */}
@@ -208,17 +222,12 @@ export default function ExpenseShow({ expense }: ExpenseShowProps) {
 
                                                 {/* Status Column */}
                                                 <td className="px-6 py-4 text-center">
-                                                    <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium border ${transaction.status === 'Cleared' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
-                                                        transaction.status === 'Pending' ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' :
-                                                            'bg-red-500/10 text-red-400 border-red-500/20'
-                                                        }`}>
-                                                        {transaction.status}
-                                                    </span>
+                                                    <StatusBadge status={transaction.expense_status?.name || 'Unknown'} />
                                                 </td>
 
                                                 {/* Amount Column */}
                                                 <td className="px-6 pe-2 py-4 text-sm font-mono text-white font-bold text-right">
-                                                    {transaction.amount}
+                                                    ${transaction.amount.toLocaleString()}
                                                 </td>
 
                                             </tr>
@@ -256,7 +265,15 @@ export default function ExpenseShow({ expense }: ExpenseShowProps) {
                                     <RefreshCw className="w-5 h-5" />
                                     <div>
                                         <p className="text-sm font-bold">Recurring Subscription</p>
-                                        <p className="text-xs text-blue-300/80">This expense is marked as a recurring monthly charge.</p>
+                                        <p className="text-xs text-blue-300/80">
+                                            {expense.recurring_rule.interval === 1
+                                                ? `This expense is a recurring ${expense.recurring_rule.frequency} charge.`
+                                                : `This expense is a recurring ${expense.recurring_rule.frequency} charge, billed every ${expense.recurring_rule.interval} ${expense.recurring_rule.frequency.replace(/ly$/i, 's')}.`
+                                            }
+                                        </p>
+                                        {expense.recurring_rule.end_date && (
+                                            <span className="text-xs text-blue-300/80">Ends on {expense.recurring_rule.end_date}</span>
+                                        )}
                                     </div>
                                 </div>
                             )}
@@ -267,7 +284,7 @@ export default function ExpenseShow({ expense }: ExpenseShowProps) {
                     <div className="space-y-6">
 
                         {/* 3. AI Audit Panel (Crucial for CFO Dashboard) */}
-                        {expense.expense_status.name === 'Unpaid' && (
+                        {expense.expense_transactions?.[0]?.expense_status?.name === 'Rejected' && (
                             <motion.div
                                 initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
                                 className="bg-gradient-to-br from-red-900/20 to-gray-900 backdrop-blur-md border border-red-500/30 rounded-xl p-6 relative overflow-hidden shadow-[0_0_30px_rgba(239,68,68,0.1)]"
@@ -377,9 +394,9 @@ export default function ExpenseShow({ expense }: ExpenseShowProps) {
                         </motion.div>
                     </div>
                 </div>
-                {/* <pre className="text-xs font-mono">
+                <pre className="text-xs font-mono">
                     {JSON.stringify(expense, null, 2)}
-                </pre> */}
+                </pre>
             </div>
         </Layout>
     );
