@@ -5,18 +5,13 @@ interface InputFieldProps extends InputHTMLAttributes<HTMLInputElement> {
     label: string;
     icon?: LucideIcon;
     error?: string; // New prop for the error message
+    disabled?: boolean;
 }
 
-const InputField: React.FC<InputFieldProps> = ({
-                                                   label,
-                                                   icon: Icon,
-                                                   error,
-                                                   className = '',
-                                                   ...props
-                                               }) => {
+const InputField: React.FC<InputFieldProps> = ({label, icon: Icon, error, className = '', disabled, ...props}) => {
     return (
-        <div className={`space-y-2 ${className}`}>
-            <label className="text-sm font-medium text-gray-300 ml-1">
+        <div className={`space-y-2 ${className} ${disabled ? 'opacity-50' : ''}`}>
+            <label className={`text-sm font-medium text-gray-300 ml-1 ${disabled ? 'cursor-not-allowed' : ''}`}>
                 {label}
             </label>
             <div className="relative">
@@ -26,9 +21,11 @@ const InputField: React.FC<InputFieldProps> = ({
 
                 <input
                     {...props}
+                    disabled={disabled}
                     className={`
                         w-full bg-gray-950/50 rounded-lg py-3
                         transition-all placeholder:text-gray-600 focus:outline-none focus:ring-2
+                        disabled:cursor-not-allowed
                         ${Icon ? 'pl-10 pr-4' : 'px-4'}
                         ${error
                         ? 'border-red-500/50 focus:border-red-500 focus:ring-red-500/20 text-red-100'

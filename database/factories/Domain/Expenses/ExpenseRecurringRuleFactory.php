@@ -18,6 +18,7 @@ class ExpenseRecurringRuleFactory extends Factory
             'expense_id' => Expense::factory(),
             'frequency' => $this->faker->randomElement(['weekly', 'monthly', 'yearly']),
             'interval' => $this->faker->numberBetween(1, 3),
+            'amount' => $this->faker->numberBetween(100, 1000),
             'start_date' => $start,
             'end_date' => null,
             'next_run_date' => now()->addMonth(),

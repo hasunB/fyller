@@ -70,6 +70,7 @@ class InventoryController extends Controller
             Product::create($validated);
 
             return redirect()->route('inventory.create')->with('success', 'Product created successfully.');
+            
         } catch (\Throwable $th) {
             throw $th;
         }

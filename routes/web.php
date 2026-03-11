@@ -38,6 +38,7 @@ Route::post('/inventory/store', [InventoryController::class, 'store'])->middlewa
 Route::get('/orders', [OrderController::class, 'index'])->middleware('auth')->name('orders.index');
 Route::get('/orders/create', [OrderController::class, 'create'])->middleware('auth')->name('orders.create');
 Route::get('/orders/{order}', [OrderController::class, 'show'])->middleware('auth')->name('orders.show');
+Route::post('/orders/store', [OrderController::class, 'store'])->middleware('auth')->name('orders.store');
 
 // expenses
 Route::get('/expenses', [ExpenseController::class, 'index'])->middleware('auth')->name('expenses.index');
