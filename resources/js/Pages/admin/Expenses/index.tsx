@@ -40,6 +40,8 @@ interface Expense {
     subtotal_amount: number | string;
     expense_transactions: {
         id: string;
+        amount: string;
+        transaction_date: string;
         expense_status: {
             name: string;
         } | null;
@@ -47,6 +49,7 @@ interface Expense {
 }
 
 export default function ExpensesIndex({ expenses, total_expenses_this_month, total_software_expenses, projected_expenses, AI_flagged_count }: Props) {
+
     return (
         <Layout title="Expense Management">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
@@ -145,57 +148,66 @@ export default function ExpensesIndex({ expenses, total_expenses_this_month, tot
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-800">
-                                    {expenses.data.map((expense) => (
-                                        <motion.tr
-                                            key={expense.id}
-                                            initial={{ opacity: 0 }}
-                                            animate={{ opacity: 1 }}
-                                            className={`hover:bg-gray-800/50 transition-colors group ${expense.expense_transactions?.[0]?.expense_status?.name === 'Flagged' ? 'bg-red-500/5' : ''}`}
-                                        >
-                                            <td className="px-6 py-4">
-                                                <div className="flex flex-col">
-                                                    <span className="text-sm font-medium text-white">{expense.name}</span>
-                                                    <span className="text-xs text-gray-500">{expense.expense_number}</span>
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <CategoryBadge category={expense.category.name} />
-                                            </td>
-                                            <td className="px-6 py-4 text-xs text-gray-400">
-                                                {expense.last_sync}
-                                            </td>
-                                            <td className="px-6 py-4 text-center">
-                                                <StatusBadge status={expense.expense_transactions?.[0]?.expense_status?.name || 'Unknown'} insight={expense.aiInsight} />
-                                            </td>
-                                            <td className="px-6 py-4 text-sm font-mono text-white text-right">
-                                                ${expense.subtotal_amount}
-                                            </td>
-                                            <td className="px-6 py-4 text-center">
-                                                {expense.is_recurring ? (
-                                                    <div className="flex justify-center items-center">
-                                                        <span className="relative flex h-3 w-3">
-                                                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                                                            <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
-                                                        </span>
+                                    {expenses.data.map((expense) => {
+                                        const latestTransactionStatus = expense.expense_transactions?.length > 0
+                                            ? [...expense.expense_transactions].sort((a, b) => new Date(b.transaction_date).getTime() - new Date(a.transaction_date).getTime())[0].expense_status?.name
+                                            : 'Unknown';
+
+                                        const latestTransactionAmount = expense.expense_transactions?.length > 0
+                                            ? [...expense.expense_transactions].sort((a, b) => new Date(b.transaction_date).getTime() - new Date(a.transaction_date).getTime())[0].amount
+                                            : '0.00';
+                                        return (
+                                            <motion.tr
+                                                key={expense.id}
+                                                initial={{ opacity: 0 }}
+                                                animate={{ opacity: 1 }}
+                                                className={`hover:bg-gray-800/50 transition-colors group ${latestTransactionStatus === 'Flagged' ? 'bg-red-500/5' : ''}`}
+                                            >
+                                                <td className="px-6 py-4">
+                                                    <div className="flex flex-col">
+                                                        <span className="text-sm font-medium text-white">{expense.name}</span>
+                                                        <span className="text-xs text-gray-500">{expense.expense_number}</span>
                                                     </div>
-                                                ) : (
-                                                    <div className="flex justify-center items-center">-</div>
-                                                )}
-                                            </td>
-                                            <td className="px-6 py-4 text-center">
-                                                {expense.receipt ? (
-                                                    <CheckCircle2 className="w-4 h-4 text-gray-600 mx-auto" />
-                                                ) : (
-                                                    <span className="text-[10px] text-amber-500 bg-amber-500/10 px-1.5 py-0.5 rounded">Missing</span>
-                                                )}
-                                            </td>
-                                            <td className="px-6 py-5 text-center">
-                                                <Link href={`/expenses/${expense.id}`} className="inline-flex items-center justify-center text-gray-500 hover:text-white p-2 rounded-lg hover:bg-gray-800 transition-colors">
-                                                    <Eye className="w-4 h-4" />
-                                                </Link>
-                                            </td>
-                                        </motion.tr>
-                                    ))}
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <CategoryBadge category={expense.category.name} />
+                                                </td>
+                                                <td className="px-6 py-4 text-xs text-gray-400">
+                                                    {expense.last_sync}
+                                                </td>
+                                                <td className="px-6 py-4 text-center">
+                                                    <StatusBadge status={latestTransactionStatus || 'Unknown'} insight={expense.aiInsight} />
+                                                </td>
+                                                <td className="px-6 py-4 text-sm font-mono text-white text-right">
+                                                    {`$`+latestTransactionAmount}
+                                                </td>
+                                                <td className="px-6 py-4 text-center">
+                                                    {expense.is_recurring ? (
+                                                        <div className="flex justify-center items-center">
+                                                            <span className="relative flex h-3 w-3">
+                                                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                                                                <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                                                            </span>
+                                                        </div>
+                                                    ) : (
+                                                        <div className="flex justify-center items-center">-</div>
+                                                    )}
+                                                </td>
+                                                <td className="px-6 py-4 text-center">
+                                                    {expense.receipt ? (
+                                                        <CheckCircle2 className="w-4 h-4 text-gray-600 mx-auto" />
+                                                    ) : (
+                                                        <span className="text-[10px] text-amber-500 bg-amber-500/10 px-1.5 py-0.5 rounded">Missing</span>
+                                                    )}
+                                                </td>
+                                                <td className="px-6 py-5 text-center">
+                                                    <Link href={`/expenses/${expense.id}`} className="inline-flex items-center justify-center text-gray-500 hover:text-white p-2 rounded-lg hover:bg-gray-800 transition-colors">
+                                                        <Eye className="w-4 h-4" />
+                                                    </Link>
+                                                </td>
+                                            </motion.tr>
+                                        )
+                                    })}
                                 </tbody>
                             </table>
                         </div>

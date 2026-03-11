@@ -23,7 +23,6 @@ type Category = {
     name: string;
 };
 
-// --- Main Page Component ---
 export default function CreateProduct({ categories }: { categories: Category[] }) {
     const { data, setData, post, processing, errors } = useForm({
         name: '',

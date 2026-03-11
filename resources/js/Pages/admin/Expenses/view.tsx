@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import {
     ArrowLeft,
     Printer,
+    CreditCard,
     MoreHorizontal,
     AlertOctagon,
     FileText,
@@ -40,6 +41,8 @@ interface ExpenseShowProps {
             interval: number;
             start_date: string;
             end_date: string;
+            next_run_date: string;
+            amount: string;
         };
         expense_transactions: {
             id: string;
@@ -63,30 +66,10 @@ interface ExpenseShowProps {
     };
 }
 // --- TODO: add sections for predicted next payment
-// --- Mock Data (Remove this if passing actual props from Laravel controller) ---
-const mockExpense: ExpenseShowProps['expense'] = {
-    id: "9a8b7c6d",
-    expense_number: "EXP-001",
-    name: "AWS Cloud Services - October",
-    merchant: { name: "Amazon Web Services" },
-    category: { name: "Infrastructure" },
-    created_at: "Oct 24, 2026",
-    is_recurring: true,
-    receipt_url: "#",
-    subtotal_amount: 2200.00,
-    tax_amount: 250.00,
-    total_amount: 2450.00,
-    description: "Monthly billing for EC2 instances, RDS databases, and S3 storage across US-East-1 and EU-Central-1 regions.",
-    ai_insight: "Unusual spike detected. Total amount is 42% higher than the 6-month historical average for this merchant.",
-    ai_confidence: 96,
-    ai_flags: [
-        "Amount anomaly (+42% variance)",
-        "New service charge detected: SageMaker"
-    ],
-    created_by: "System (Auto-Sync)"
-};
-
 export default function ExpenseShow({ expense }: ExpenseShowProps) {
+    const latestTransactionStatus = expense.expense_transactions?.length > 0
+        ? [...expense.expense_transactions].sort((a, b) => new Date(b.transaction_date).getTime() - new Date(a.transaction_date).getTime())[0].expense_status?.name
+        : 'Unknown';
 
     return (
         <Layout title={expense.expense_number}>
@@ -101,7 +84,7 @@ export default function ExpenseShow({ expense }: ExpenseShowProps) {
                         <div>
                             <div className="flex items-center gap-3">
                                 <h1 className="text-2xl font-bold text-white">#{expense.expense_number}</h1>
-                                <StatusBadge status={expense.expense_transactions?.[0]?.expense_status?.name || 'Unknown'} />
+                                <StatusBadge status={latestTransactionStatus || 'Unknown'} />
                                 <CategoryBadge category={expense.category.name} />
                                 {expense.is_recurring ? (
                                     <div className="flex justify-center items-center">
@@ -122,7 +105,7 @@ export default function ExpenseShow({ expense }: ExpenseShowProps) {
                         <button className="flex items-center gap-2 px-4 py-2 bg-gray-900 border border-gray-800 text-gray-300 hover:text-white rounded-lg transition-colors text-sm">
                             <MoreHorizontal className="w-4 h-4" />
                         </button>
-                        {expense.expense_transactions?.[0]?.expense_status?.name === 'Flagged' || expense.expense_transactions?.[0]?.expense_status?.name === 'Pending' ? (
+                        {latestTransactionStatus === 'Flagged' || latestTransactionStatus === 'Pending' ? (
                             <button className="flex items-center gap-2 px-6 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg shadow-lg shadow-emerald-500/20 transition-all text-sm font-medium">
                                 Approve Expense
                             </button>
@@ -145,8 +128,8 @@ export default function ExpenseShow({ expense }: ExpenseShowProps) {
                             initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
                             className="bg-gray-900/50 backdrop-blur-md border border-gray-800 rounded-xl p-6"
                         >
-                            <h3 className="text-lg font-bold text-white mb-6 border-b border-gray-800 pb-4">Expense Details</h3>
-
+                            <h3 className="text-lg font-bold text-white mb-6 border-b border-gray-800 pb-4 flex items-center gap-2">
+                                <FileText className="w-5 h-5 text-gray-400" /> Expense Details</h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-8">
                                 <div>
                                     <p className="text-sm text-gray-500 flex items-center gap-2 mb-1"><Building className="w-4 h-4" /> Merchant</p>
@@ -172,7 +155,41 @@ export default function ExpenseShow({ expense }: ExpenseShowProps) {
                             </div>
                         </motion.div>
 
-                        {/* 2. expense transactions */}
+                        {/* 2. Recurring Subscription */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+                            {expense.is_recurring && (
+                                <div className="bg-gray-900/50 backdrop-blur-md border border-gray-800 rounded-xl p-6">
+                                    <h3 className="text-lg font-bold text-white mb-6 border-b border-gray-800 pb-4 flex items-center gap-2">
+                                        <RefreshCw className="w-5 h-5 text-gray-400" /> Recurring Subscription
+                                    </h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-y-6 gap-x-8">
+                                        <div>
+                                            <p className="text-sm text-gray-500 flex items-center gap-2 mb-1"><Calendar className="w-4 h-4" /> Frequency</p>
+                                            <p className="text-base font-medium text-white capitalize">{expense.recurring_rule.frequency}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-sm text-gray-500 flex items-center gap-2 mb-1"><Layers className="w-4 h-4" /> Interval</p>
+                                            <p className="text-base font-medium text-white">Every {expense.recurring_rule.interval} {expense.recurring_rule.frequency.replace(/ly$/i, 's')}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-sm text-gray-500 flex items-center gap-2 mb-1"><DollarSign className="w-4 h-4" /> Amount</p>
+                                            <p className="text-base font-medium text-white">${expense.recurring_rule.amount.toLocaleString()} <span className="text-xs text-gray-500 font-normal">/ {expense.recurring_rule.frequency.replace(/ly$/i, '')}</span></p>
+                                        </div>
+                                    </div>
+                                    {expense.recurring_rule.end_date && (
+                                        <div className="mt-6 pt-4 border-t border-gray-800">
+                                            <p className="text-sm text-gray-400 flex items-center gap-2">
+                                                <AlertOctagon className="w-4 h-4 text-amber-500" />
+                                                Subscription ends on {new Date(expense.recurring_rule.end_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                                            </p>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                        </motion.div>
+
+                        {/* 3. expense transactions */}
                         <motion.div
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -196,87 +213,46 @@ export default function ExpenseShow({ expense }: ExpenseShowProps) {
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-gray-800">
-                                        {expense.expense_transactions.map((transaction) => (
-                                            <tr key={transaction.id} className="hover:bg-gray-800/50 transition-colors group">
+                                        {[...expense.expense_transactions]
+                                            .sort((a, b) => new Date(b.transaction_date).getTime() - new Date(a.transaction_date).getTime())
+                                            .map((transaction) => (
+                                                <tr key={transaction.id} className="hover:bg-gray-800/50 transition-colors group">
 
-                                                {/* ID Column */}
-                                                <td className="px-6 ps-2 py-4 text-sm font-mono text-gray-400 group-hover:text-indigo-400 transition-colors">
-                                                    {transaction.transaction_number}
-                                                </td>
+                                                    {/* ID Column */}
+                                                    <td className="px-6 ps-2 py-4 text-sm font-mono text-gray-400 group-hover:text-indigo-400 transition-colors">
+                                                        {transaction.transaction_number}
+                                                    </td>
 
-                                                {/* Date Column */}
-                                                <td className="px-6 py-4 text-sm text-gray-300">
-                                                    {transaction.transaction_date}
-                                                </td>
+                                                    {/* Date Column */}
+                                                    <td className="px-6 py-4 text-sm text-gray-300">
+                                                        {transaction.transaction_date}
+                                                    </td>
 
-                                                {/* Receipt Column */}
-                                                <td className="px-6 py-4 text-center">
-                                                    {transaction.receipt ? (
-                                                        <CheckCircle2 className="w-4 h-4 text-gray-600 mx-auto group-hover:text-emerald-500 transition-colors" />
-                                                    ) : (
-                                                        <span className="text-[10px] text-amber-500 bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20">
-                                                            Missing
-                                                        </span>
-                                                    )}
-                                                </td>
+                                                    {/* Receipt Column */}
+                                                    <td className="px-6 py-4 text-center">
+                                                        {transaction.receipt ? (
+                                                            <CheckCircle2 className="w-4 h-4 text-gray-600 mx-auto group-hover:text-emerald-500 transition-colors" />
+                                                        ) : (
+                                                            <span className="text-[10px] text-amber-500 bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20">
+                                                                Missing
+                                                            </span>
+                                                        )}
+                                                    </td>
 
-                                                {/* Status Column */}
-                                                <td className="px-6 py-4 text-center">
-                                                    <StatusBadge status={transaction.expense_status?.name || 'Unknown'} />
-                                                </td>
+                                                    {/* Status Column */}
+                                                    <td className="px-6 py-4 text-center">
+                                                        <StatusBadge status={transaction.expense_status?.name || 'Unknown'} />
+                                                    </td>
 
-                                                {/* Amount Column */}
-                                                <td className="px-6 pe-2 py-4 text-sm font-mono text-white font-bold text-right">
-                                                    ${transaction.amount.toLocaleString()}
-                                                </td>
-
-                                            </tr>
-                                        ))}
+                                                    {/* Amount Column */}
+                                                    <td className="px-6 pe-2 py-4 text-sm font-mono text-white font-bold text-right">
+                                                        ${transaction.amount.toLocaleString()}
+                                                    </td>
+                                                </tr>
+                                            ))}
                                     </tbody>
                                 </table>
                             </div>
-                        </motion.div>
-
-                        {/* 2. Financial Breakdown */}
-                        <motion.div
-                            initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-                            className="bg-gray-900/50 backdrop-blur-md border border-gray-800 rounded-xl p-6"
-                        >
-                            <h3 className="text-lg font-bold text-white mb-6 border-b border-gray-800 pb-4 flex items-center gap-2">
-                                <DollarSign className="w-5 h-5 text-gray-400" /> Financial Breakdown
-                            </h3>
-                            <div className="space-y-4">
-                                <div className="flex justify-between items-center text-sm">
-                                    <span className="text-gray-400">Subtotal</span>
-                                    <span className="text-white font-mono">$0.00</span>
-                                </div>
-                                <div className="flex justify-between items-center text-sm">
-                                    <span className="text-gray-400">Tax / VAT</span>
-                                    <span className="text-white font-mono">$0.00</span>
-                                </div>
-                                <div className="flex justify-between items-center border-t border-gray-800 pt-4 mt-2">
-                                    <span className="text-base font-bold text-white">Total Amount</span>
-                                    <span className="text-2xl font-bold text-indigo-400 font-mono">$0.00</span>
-                                </div>
-                            </div>
-
-                            {expense.is_recurring && (
-                                <div className="mt-6 bg-blue-500/10 border border-blue-500/20 rounded-lg p-4 flex items-center gap-3 text-blue-400">
-                                    <RefreshCw className="w-5 h-5" />
-                                    <div>
-                                        <p className="text-sm font-bold">Recurring Subscription</p>
-                                        <p className="text-xs text-blue-300/80">
-                                            {expense.recurring_rule.interval === 1
-                                                ? `This expense is a recurring ${expense.recurring_rule.frequency} charge.`
-                                                : `This expense is a recurring ${expense.recurring_rule.frequency} charge, billed every ${expense.recurring_rule.interval} ${expense.recurring_rule.frequency.replace(/ly$/i, 's')}.`
-                                            }
-                                        </p>
-                                        {expense.recurring_rule.end_date && (
-                                            <span className="text-xs text-blue-300/80">Ends on {expense.recurring_rule.end_date}</span>
-                                        )}
-                                    </div>
-                                </div>
-                            )}
                         </motion.div>
                     </div>
 
@@ -284,7 +260,7 @@ export default function ExpenseShow({ expense }: ExpenseShowProps) {
                     <div className="space-y-6">
 
                         {/* 3. AI Audit Panel (Crucial for CFO Dashboard) */}
-                        {expense.expense_transactions?.[0]?.expense_status?.name === 'Rejected' && (
+                        {latestTransactionStatus === 'Unpaid' && (
                             <motion.div
                                 initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
                                 className="bg-gradient-to-br from-red-900/20 to-gray-900 backdrop-blur-md border border-red-500/30 rounded-xl p-6 relative overflow-hidden shadow-[0_0_30px_rgba(239,68,68,0.1)]"
@@ -331,7 +307,28 @@ export default function ExpenseShow({ expense }: ExpenseShowProps) {
                             </motion.div>
                         )}
 
-                        {/* 4. Receipt / Evidence */}
+                        {/* 4. Next Payment */}
+                        {expense.is_recurring && (
+                            <motion.div
+                                initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+                                className="bg-gray-900/50 backdrop-blur-md border border-gray-600 rounded-xl p-6 ring-1 ring-gray-600/50 shadow-[0_0_15px_rgba(156,163,175,0.15)] animate-[pulse_4s_cubic-bezier(0.4,0,0.6,1)_infinite]"
+                            >
+                                <h3 className="text-lg font-bold text-white mb-6 border-b border-gray-800 pb-4 flex items-center gap-2">
+                                <FileText className="w-5 h-5 text-gray-400" /> Next Payment</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-8">
+                                <div>
+                                    <p className="text-sm text-gray-500 flex items-center gap-2 mb-1"><Calendar className="w-4 h-4" /> Date</p>
+                                    <p className="text-white font-medium">{new Date(expense.recurring_rule.next_run_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
+                                </div>
+                                <div>
+                                    <p className="text-sm text-gray-500 flex items-center gap-2 mb-1"><DollarSign className="w-4 h-4" /> Amount</p>
+                                    <p className="text-white font-bold text-green-400 text-xl">${expense.recurring_rule.amount.toLocaleString()}</p>
+                                </div>
+                            </div>
+                        </motion.div>
+                        )}
+
+                        {/* 5. Receipt / Evidence */}
                         <motion.div
                             initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}
                             className="bg-gray-900/50 backdrop-blur-md border border-gray-800 rounded-xl p-6 flex flex-col h-[300px]"
@@ -368,35 +365,9 @@ export default function ExpenseShow({ expense }: ExpenseShowProps) {
                                 )}
                             </div>
                         </motion.div>
-
-                        {/* 5. Audit Trail Metadata */}
-                        <motion.div
-                            initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}
-                            className="bg-gray-900/50 backdrop-blur-md border border-gray-800 rounded-xl p-6"
-                        >
-                            <h3 className="text-sm font-bold text-white mb-4 uppercase tracking-wider text-gray-500">Metadata</h3>
-                            <div className="space-y-3 text-xs">
-                                <div className="flex justify-between">
-                                    <span className="text-gray-500">Created By</span>
-                                    <span className="text-gray-300 font-medium">{expense.created_by}</span>
-                                </div>
-                                <div className="flex justify-between">
-                                    <span className="text-gray-500">Internal ID</span>
-                                    <span className="text-gray-300 font-mono">{expense.expense_number}</span>
-                                </div>
-                                <div className="flex justify-between">
-                                    <span className="text-gray-500">AI Scan Status</span>
-                                    <span className="text-emerald-400 flex items-center gap-1">
-                                        <CheckCircle2 className="w-3 h-3" /> Completed
-                                    </span>
-                                </div>
-                            </div>
-                        </motion.div>
                     </div>
                 </div>
-                <pre className="text-xs font-mono">
-                    {JSON.stringify(expense, null, 2)}
-                </pre>
+                <pre>{JSON.stringify(expense, null, 2)}</pre>
             </div>
         </Layout>
     );

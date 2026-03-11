@@ -34,8 +34,11 @@ return new class extends Migration
             $table->string('expense_number');
             $table->string('name');
             $table->text('description')->nullable();
+            $table->date('expense_date');
             $table->foreignId('category_id')->constrained('expense_categories')->cascadeOnDelete();
             $table->foreignId('merchant_id')->constrained('merchants')->cascadeOnDelete();
+            $table->boolean('enable_ai_forecast')->default(false);
+            $table->boolean('enable_anomaly_detection')->default(false);
             $table->date('expire_date')->nullable();
             $table->timestamps();
         });
@@ -45,6 +48,7 @@ return new class extends Migration
             $table->foreignId('expense_id')->constrained('expenses')->cascadeOnDelete();
             $table->enum('frequency', ['daily', 'weekly', 'monthly', 'yearly']);
             $table->integer('interval')->default(1);
+            $table->decimal('amount', 10, 2);
             $table->date('start_date');
             $table->date('end_date')->nullable();
             $table->date('next_run_date');
