@@ -34,7 +34,6 @@ return new class extends Migration
             $table->string('expense_number');
             $table->string('name');
             $table->text('description')->nullable();
-            $table->date('expense_date');
             $table->foreignId('category_id')->constrained('expense_categories')->cascadeOnDelete();
             $table->foreignId('merchant_id')->constrained('merchants')->cascadeOnDelete();
             $table->boolean('enable_ai_forecast')->default(false);

@@ -166,7 +166,7 @@ export default function CreateExpense({ categories, merchants }: { categories: C
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <InputField
-                                        label="Date of Expense *"
+                                        label="Transaction date *"
                                         type="date"
                                         icon={Calendar}
                                         value={data.date}

@@ -13,6 +13,7 @@ class ExpenseRecurringRule extends Model
         'expense_id',
         'frequency',
         'interval',
+        'amount',
         'start_date',
         'end_date',
         'next_run_date',

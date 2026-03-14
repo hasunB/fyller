@@ -10,6 +10,7 @@ class ExpenseTransaction extends Model
     use HasFactory;
 
     protected $fillable = [
+        'transaction_number',
         'expense_id',
         'amount',
         'transaction_date',

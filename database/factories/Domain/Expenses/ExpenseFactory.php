@@ -21,7 +21,6 @@ class ExpenseFactory extends Factory
             'merchant_id' => $this->faker->numberBetween(1, 9),
             'enable_ai_forecast' => $this->faker->boolean(),
             'enable_anomaly_detection' => $this->faker->boolean(),
-            'expense_date' => $this->faker->date(),
             'expire_date' => $this->faker->date(),
         ];
     }

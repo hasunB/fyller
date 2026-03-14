@@ -1,50 +1,56 @@
 import React, { useState } from 'react';
 import Layout from "@/Components/Admin/Layouts/DashboardLayout";
 import { motion } from 'framer-motion';
-import {
-    Search,
-    Filter,
-    Plus,
-    MoreHorizontal,
-    Users,
-    Shield,
-    Activity,
-    Mail,
-    CheckCircle2,
-    XCircle,
-    Zap,
-    Briefcase
-} from 'lucide-react';
+import { Search, Filter, Plus, MoreHorizontal, Users, Shield, Activity, Mail, CheckCircle2, XCircle, Zap, Briefcase } from 'lucide-react';
 import RoleBadge from '@/Components/Admin/UI/EmployeeRoleBadge';
 import StatusDot from '@/Components/Admin/UI/EmployeeStatusDot';
 import ProductivityBar from '@/Components/Admin/UI/EmployeeProductivityBar';
 import AdminPanelHeader from '@/Components/Admin/UI/AdminPanelHeader';
+import CursorPagination from '@/Components/Admin/UI/CursorPagination';
 
 // --- Types ---
+interface Props {
+    employees: {
+        data: Employee[];
+        next_page_url: string | null;
+        prev_page_url: string | null;
+        per_page: number;
+        path: string;
+    };
+    total_employees: number;
+    total_active_employees: number;
+    avg_ai_score: number;
+}
+
 interface Employee {
     id: number;
-    name: string;
+    employee_number: string;
+    fullName: string;
     email: string;
-    role: 'Admin' | 'Manager' | 'Analyst' | 'Sales';
-    department: string;
-    status: 'Active' | 'On Leave' | 'Inactive';
+    enable_ai_forecast: boolean;
+    current_status: {
+        id: number;
+        status: {
+            id: number;
+            name: string;
+        };
+    };
     productivityScore: number; // 0-100
     lastActive: string;
     avatar: string;
+    roles: {
+        id: number;
+        name: string;
+        department: {
+            id: number;
+            name: string;
+        };
+    }[];
 }
-
-// --- Mock Data ---
-const employees: Employee[] = [
-    { id: 1, name: "Sarah Connor", email: "sarah@fyller.ai", role: "Admin", department: "Executive", status: "Active", productivityScore: 98, lastActive: "Just now", avatar: "SC" },
-    { id: 2, name: "John Smith", email: "john@fyller.ai", role: "Manager", department: "Sales", status: "Active", productivityScore: 85, lastActive: "12m ago", avatar: "JS" },
-    { id: 3, name: "Emily Chen", email: "emily@fyller.ai", role: "Analyst", department: "Finance", status: "On Leave", productivityScore: 92, lastActive: "2d ago", avatar: "EC" },
-    { id: 4, name: "Michael Ross", email: "mike@fyller.ai", role: "Sales", department: "Sales", status: "Inactive", productivityScore: 45, lastActive: "1mo ago", avatar: "MR" },
-    { id: 5, name: "David Kim", email: "david@fyller.ai", role: "Analyst", department: "Operations", status: "Active", productivityScore: 78, lastActive: "1h ago", avatar: "DK" },
-];
 
 // --- Main Page ---
 
-export default function EmployeeIndex() {
+export default function EmployeeIndex({ employees, total_employees, total_active_employees, avg_ai_score }: Props) {
     const [searchTerm, setSearchTerm] = useState('');
 
     return (
@@ -72,7 +78,7 @@ export default function EmployeeIndex() {
                         </div>
                         <div>
                             <p className="text-gray-500 text-xs uppercase tracking-wider">Total Members</p>
-                            <h4 className="text-2xl font-bold text-white">24</h4>
+                            <h4 className="text-2xl font-bold text-white">{total_employees.toLocaleString()}</h4>
                         </div>
                     </div>
                     <div className="bg-gray-900/50 backdrop-blur-md border border-gray-800 rounded-xl p-4 flex items-center gap-4">
@@ -81,7 +87,7 @@ export default function EmployeeIndex() {
                         </div>
                         <div>
                             <p className="text-gray-500 text-xs uppercase tracking-wider">Active Now</p>
-                            <h4 className="text-2xl font-bold text-white">18</h4>
+                            <h4 className="text-2xl font-bold text-white">{total_active_employees.toLocaleString()}</h4>
                         </div>
                     </div>
                     <div className="bg-gray-900/50 backdrop-blur-md border border-gray-800 rounded-xl p-4 flex items-center gap-4">
@@ -90,7 +96,7 @@ export default function EmployeeIndex() {
                         </div>
                         <div>
                             <p className="text-gray-500 text-xs uppercase tracking-wider">Avg AI Score</p>
-                            <h4 className="text-2xl font-bold text-white">88<span className="text-sm text-gray-500 font-normal">/100</span></h4>
+                            <h4 className="text-2xl font-bold text-white">{avg_ai_score.toLocaleString()}<span className="text-sm text-gray-500 font-normal">/100</span></h4>
                         </div>
                     </div>
                 </div>
@@ -137,7 +143,7 @@ export default function EmployeeIndex() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-800">
-                                {employees.map((employee) => (
+                                {employees.data.map((employee) => (
                                     <tr key={employee.id} className="hover:bg-gray-800/50 transition-colors group">
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-3">
@@ -145,7 +151,7 @@ export default function EmployeeIndex() {
                                                     {employee.avatar}
                                                 </div>
                                                 <div>
-                                                    <p className="text-sm font-medium text-white">{employee.name}</p>
+                                                    <p className="text-sm font-medium text-white">{employee.fullName}</p>
                                                     <div className="flex items-center gap-1 text-xs text-gray-500">
                                                         <Mail className="w-3 h-3" /> {employee.email}
                                                     </div>
@@ -153,13 +159,15 @@ export default function EmployeeIndex() {
                                             </div>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <RoleBadge role={employee.role} />
+                                            <RoleBadge role={employee.roles?.[0]?.name || 'Unknown'} />
                                         </td>
                                         <td className="px-6 py-4 text-sm text-gray-400">
-                                            {employee.department}
+                                            <div className="max-w-[150px] truncate" title={employee.roles?.[0]?.department?.name || 'Unassigned'}>
+                                                {employee.roles?.[0]?.department?.name || 'Unassigned'}
+                                            </div>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <StatusDot status={employee.status} />
+                                            <StatusDot status={employee.current_status?.status?.name || 'Offline'} />
                                             <span className="text-[10px] text-gray-600 ml-4 block mt-0.5">Active: {employee.lastActive}</span>
                                         </td>
                                         <td className="px-6 py-4">
@@ -175,7 +183,11 @@ export default function EmployeeIndex() {
                             </tbody>
                         </table>
                     </div>
+                    {/* Pagination */}
+                    <CursorPagination data={employees} />
                 </motion.div>
+
+                <pre>{JSON.stringify(employees, null, 2)}</pre>
             </div>
         </Layout>
     );
