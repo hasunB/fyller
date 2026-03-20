@@ -77,4 +77,11 @@ class Employee extends Model
     {
         return $this->first_name . ' ' . $this->last_name;
     }
+
+    protected function casts(): array
+    {
+        return [
+            'password' => 'hashed',
+        ];
+    }
 }

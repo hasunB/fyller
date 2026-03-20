@@ -19,6 +19,7 @@ class EmployeeFactory extends Factory
             'email' => $this->faker->unique()->safeEmail(),
             'phone' => $this->faker->phoneNumber(),
             'hire_date' => $this->faker->date(),
+            'password' => $this->faker->password(),
             'enable_ai_forecast' => $this->faker->boolean(),
             'enable_anomaly_detection' => $this->faker->boolean(),
         ];

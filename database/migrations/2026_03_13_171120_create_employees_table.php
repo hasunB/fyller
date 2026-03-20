@@ -54,6 +54,7 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('phone')->unique();
             $table->date('hire_date');
+            $table->string('password');
             $table->boolean('enable_ai_forecast')->default(false);
             $table->boolean('enable_anomaly_detection')->default(false);
             $table->timestamps();

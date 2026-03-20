@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import Layout from "@/Components/Admin/Layouts/DashboardLayout";
 import { motion } from 'framer-motion';
-import { Search, Filter, Plus, MoreHorizontal, Users, Shield, Activity, Mail, CheckCircle2, XCircle, Zap, Briefcase } from 'lucide-react';
+import { Search, Filter, Plus, MoreHorizontal, Users, Shield, Activity, Mail, CheckCircle2, XCircle, Zap, Briefcase, Eye } from 'lucide-react';
 import RoleBadge from '@/Components/Admin/UI/EmployeeRoleBadge';
 import StatusDot from '@/Components/Admin/UI/EmployeeStatusDot';
 import ProductivityBar from '@/Components/Admin/UI/EmployeeProductivityBar';
 import AdminPanelHeader from '@/Components/Admin/UI/AdminPanelHeader';
 import CursorPagination from '@/Components/Admin/UI/CursorPagination';
+import { Link } from '@inertiajs/react';
 
 // --- Types ---
 interface Props {
@@ -174,9 +175,9 @@ export default function EmployeeIndex({ employees, total_employees, total_active
                                             <ProductivityBar score={employee.productivityScore} />
                                         </td>
                                         <td className="px-6 py-4 text-right">
-                                            <button className="text-gray-500 hover:text-white p-2 rounded-lg hover:bg-gray-800 transition-colors">
-                                                <MoreHorizontal className="w-4 h-4" />
-                                            </button>
+                                            <Link href={`/employees/${employee.id}`} className="inline-flex items-center justify-center text-gray-500 hover:text-white p-2 rounded-lg hover:bg-gray-800 transition-colors">
+                                                <Eye className="w-4 h-4" />
+                                            </Link>
                                         </td>
                                     </tr>
                                 ))}
@@ -186,8 +187,6 @@ export default function EmployeeIndex({ employees, total_employees, total_active
                     {/* Pagination */}
                     <CursorPagination data={employees} />
                 </motion.div>
-
-                <pre>{JSON.stringify(employees, null, 2)}</pre>
             </div>
         </Layout>
     );

@@ -196,10 +196,13 @@ class DatabaseSeeder extends Seeder
         }
 
         $permissions = [
-            ['name' => 'Create'],
-            ['name' => 'Read'],
-            ['name' => 'Update'],
-            ['name' => 'Delete'],
+            ['name' => 'View Dashboard'],
+            ['name' => 'Manage Employees'],
+            ['name' => 'Manage Inventory'],
+            ['name' => 'Manage Orders'],
+            ['name' => 'Manage Expenses'],
+            ['name' => 'View Analytics'],
+            ['name' => 'Manage Settings'],
         ];
         foreach ($permissions as $permission) {
             DB::table('permissions')->insert(array_merge($permission, ['created_at' => now(), 'updated_at' => now()]));
