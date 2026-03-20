@@ -11,10 +11,19 @@ use App\Domain\Orders\Models\OrderItem;
 use App\Domain\Expenses\Models\Expense;
 use App\Domain\Expenses\Models\ExpenseRecurringRule;
 use App\Domain\Expenses\Models\ExpenseTransaction;
+use App\Domain\Employees\Models\Employee;
+use App\Domain\Employees\Models\EmployeeStatus;
+use App\Domain\Employees\Models\EmployeeStatusLog;
+use App\Domain\Employees\Models\Address;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
+use App\Domain\Employees\Models\Role;
+use App\Domain\Employees\Models\RolePermission;
+use App\Domain\Employees\Models\EmployeePermission;
+use App\Domain\Employees\Models\EmployeeRole;
+use App\Domain\Employees\Models\Permission;
 
 class DatabaseSeeder extends Seeder
 {
@@ -153,5 +162,58 @@ class DatabaseSeeder extends Seeder
         Expense::factory(10)->create();
         ExpenseRecurringRule::factory(10)->create();
         ExpenseTransaction::factory(100)->create();
+
+        $employeeStatuses = [
+            ['name' => 'Active'],
+            ['name' => 'Inactive'],
+            ['name' => 'On Leave'],
+            ['name' => 'Terminated'],
+            ['name' => 'On Probation'],
+            ['name' => 'Contractor'],
+            ['name' => 'Part-Time'],
+            ['name' => 'Full-Time'],
+            ['name' => 'Intern'],
+            ['name' => 'Temporary'],
+        ];
+        foreach ($employeeStatuses as $status) {
+            DB::table('employee_status')->insert(array_merge($status, ['created_at' => now(), 'updated_at' => now()]));
+        }
+
+        $departments = [
+            ['name' => 'Human Resources'],
+            ['name' => 'Finance'],
+            ['name' => 'IT'],
+            ['name' => 'Sales'],
+            ['name' => 'Marketing'],
+            ['name' => 'Operations'],
+            ['name' => 'Customer Support'],
+            ['name' => 'Legal'],
+            ['name' => 'Research & Development'],
+            ['name' => 'Executive'],
+        ];
+        foreach ($departments as $department) {
+            DB::table('departments')->insert(array_merge($department, ['created_at' => now(), 'updated_at' => now()]));
+        }
+
+        $permissions = [
+            ['name' => 'View Dashboard'],
+            ['name' => 'Manage Employees'],
+            ['name' => 'Manage Inventory'],
+            ['name' => 'Manage Orders'],
+            ['name' => 'Manage Expenses'],
+            ['name' => 'View Analytics'],
+            ['name' => 'Manage Settings'],
+        ];
+        foreach ($permissions as $permission) {
+            DB::table('permissions')->insert(array_merge($permission, ['created_at' => now(), 'updated_at' => now()]));
+        }
+
+        Employee::factory(10)->create();
+        Role::factory(10)->create();
+        RolePermission::factory(10)->create();
+        EmployeePermission::factory(10)->create();
+        EmployeeRole::factory(10)->create();
+        EmployeeStatusLog::factory(10)->create();
+        Address::factory(10)->create();
     }
 }
