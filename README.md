@@ -58,7 +58,7 @@ app/
 ### Installation
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
+   git clone [<repository-url>](https://github.com/hasunB/fyller.git)
    cd fyller
    ```
 
@@ -105,4 +105,4 @@ Run the test suite with:
 
 ## 📝 License
 
-Fyller is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Fyller is open-sourced software licensed under the [Apache-2.0](https://opensource.org/licenses/MIT).
